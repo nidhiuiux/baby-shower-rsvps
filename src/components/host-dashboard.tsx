@@ -41,15 +41,18 @@ export function HostDashboard() {
         error?: string;
         rsvps?: Rsvp[];
         summary?: Summary;
+        email?: EmailStatus;
       };
       if (!res.ok) {
         setError(data.error || "Could not load responses.");
         setRsvps(null);
         setSummary(null);
+        setEmailStatus(null);
         return;
       }
       setRsvps(data.rsvps ?? []);
       setSummary(data.summary ?? null);
+      setEmailStatus(data.email ?? null);
     } catch {
       setError("Could not load responses. Please try again.");
     } finally {
@@ -157,6 +160,28 @@ export function HostDashboard() {
 
   return (
     <div className="space-y-8">
+      {emailStatus && (
+        <div
+          className={`rounded-2xl px-4 py-3 text-sm ${
+            emailStatus.configured
+              ? "bg-[var(--leaf-soft)] text-[var(--leaf-deep)]"
+              : "bg-[#f8e8e6] text-[var(--blush-deep)]"
+          }`}
+        >
+          {emailStatus.configured ? (
+            <p>
+              Email alerts on for <strong>{emailStatus.notifyEmail}</strong>
+            </p>
+          ) : (
+            <p>
+              Email alerts are not on yet. Add <code>RESEND_API_KEY</code> to{" "}
+              <code>.env.local</code> (see README), then restart the app. Alerts
+              go to <strong>{emailStatus.notifyEmail}</strong>.
+            </p>
+          )}
+        </div>
+      )}
+
       {summary && (
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {[
