@@ -1,5 +1,6 @@
 import { BabyDoodles, FloatingDoodles } from "@/components/baby-doodles";
 import { RsvpForm } from "@/components/rsvp-form";
+import { SoftMusicToggle } from "@/components/soft-music-toggle";
 import { event } from "@/lib/event";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <span className="petal petal-2" aria-hidden />
       <span className="petal petal-3" aria-hidden />
       <FloatingDoodles />
+      <SoftMusicToggle />
 
       <main className="relative z-10 mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-5 py-12 sm:px-6 sm:py-16">
         <header className="animate-rise mb-10 text-center sm:mb-12">
