@@ -1,0 +1,227 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-nunito);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-fraunces);
+  --font-display: var(--font-fraunces);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --ink: #2f3d34;
+  --ink-soft: #5a6b60;
+  --ink-muted: #8a978e;
+  --leaf: #6b8f71;
+  --leaf-deep: #4f7356;
+  --leaf-soft: #e4efe6;
+  --blush: #e8c4c0;
+  --blush-deep: #b76e6a;
+  --mist: #f3f6f2;
+  --line: #d5dfd6;
+  --sky-wash: #dce9e4;
+
+  --background: #f3f6f2;
+  --foreground: #2f3d34;
+  --card: #ffffff;
+  --card-foreground: #2f3d34;
+  --popover: #ffffff;
+  --popover-foreground: #2f3d34;
+  --primary: #6b8f71;
+  --primary-foreground: #ffffff;
+  --secondary: #e4efe6;
+  --secondary-foreground: #2f3d34;
+  --muted: #e8eee9;
+  --muted-foreground: #5a6b60;
+  --accent: #f6ecea;
+  --accent-foreground: #2f3d34;
+  --destructive: #b76e6a;
+  --border: #d5dfd6;
+  --input: #d5dfd6;
+  --ring: #6b8f71;
+  --chart-1: #6b8f71;
+  --chart-2: #e8c4c0;
+  --chart-3: #8a978e;
+  --chart-4: #4f7356;
+  --chart-5: #b76e6a;
+  --radius: 0.75rem;
+  --sidebar: #f3f6f2;
+  --sidebar-foreground: #2f3d34;
+  --sidebar-primary: #6b8f71;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e4efe6;
+  --sidebar-accent-foreground: #2f3d34;
+  --sidebar-border: #d5dfd6;
+  --sidebar-ring: #6b8f71;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+.font-display {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.shower-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 10% -10%, rgba(232, 196, 192, 0.55), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 100% 0%, rgba(220, 233, 228, 0.9), transparent 50%),
+    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(107, 143, 113, 0.12), transparent 55%),
+    linear-gradient(180deg, #f7f3f1 0%, #f3f6f2 45%, #eef3ef 100%);
+}
+
+.shower-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.35;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.45) 0 1px, transparent 2px);
+  background-size: 120px 120px, 160px 160px, 100px 100px;
+  pointer-events: none;
+}
+
+.petal {
+  position: absolute;
+  border-radius: 60% 40% 55% 45%;
+  background: linear-gradient(145deg, rgba(232, 196, 192, 0.55), rgba(107, 143, 113, 0.18));
+  filter: blur(0.5px);
+  pointer-events: none;
+  z-index: -1;
+  animation: drift 14s ease-in-out infinite;
+}
+
+.petal-1 {
+  width: 140px;
+  height: 90px;
+  top: 12%;
+  left: -2%;
+  animation-delay: 0s;
+}
+
+.petal-2 {
+  width: 100px;
+  height: 70px;
+  top: 18%;
+  right: 4%;
+  animation-delay: -4s;
+  animation-duration: 18s;
+}
+
+.petal-3 {
+  width: 160px;
+  height: 100px;
+  bottom: 8%;
+  right: 10%;
+  animation-delay: -8s;
+  opacity: 0.7;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(8deg);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.8s ease-out both;
+}
+
+.animate-rise-delay {
+  animation: rise 0.9s ease-out 0.15s both;
+}
+
+.animate-fade {
+  animation: fade 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal,
+  .animate-rise,
+  .animate-rise-delay,
+  .animate-fade {
+    animation: none !important;
+  }
+}
