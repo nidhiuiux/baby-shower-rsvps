@@ -83,6 +83,7 @@ export function HostDashboard() {
         error?: string;
         rsvps?: Rsvp[];
         summary?: Summary;
+        emailSent?: boolean;
       };
       if (!res.ok) {
         setManualError(data.error || "Could not add RSVP.");
@@ -93,6 +94,13 @@ export function HostDashboard() {
       setManualName("");
       setManualNote("");
       setManualAttending("yes");
+      if (data.emailSent === false) {
+        setManualError(
+          emailStatus?.configured
+            ? "Saved, but the email alert failed to send. Check your Resend key and restart."
+            : "Saved. Email alert was not sent — add RESEND_API_KEY to .env.local (see README), then restart.",
+        );
+      }
     } catch {
       setManualError("Could not add RSVP. Please try again.");
     } finally {
@@ -317,6 +325,7 @@ export function HostDashboard() {
           onClick={() => {
             setRsvps(null);
             setSummary(null);
+            setEmailStatus(null);
             setPin("");
           }}
         >

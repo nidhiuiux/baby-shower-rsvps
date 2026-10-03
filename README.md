@@ -32,18 +32,20 @@ Every new RSVP (guest form or host manual add) emails you.
 Emails are already addressed to `notifyEmail` in `src/lib/event.ts`
 (`nsavaliya93@gmail.com`). To turn sending on:
 
-1. Create a free account at [resend.com](https://resend.com) and make an API key
+1. Create a free account at [resend.com](https://resend.com) **with `nsavaliya93@gmail.com`** (or the inbox you want alerts in) and create an API key
 2. In the project folder, copy the example env file:
    ```bash
    cp .env.example .env.local
    ```
-3. Put your key in `.env.local`:
+3. Put your key in `.env.local` (do not commit this file):
    ```bash
    RESEND_API_KEY=re_your_real_key
    NOTIFY_EMAIL=nsavaliya93@gmail.com
    ```
 4. Restart the app (`npm run dev`)
 5. Submit a test RSVP — you should get an email within a few seconds
+
+Until `RESEND_API_KEY` is set, RSVPs still save; only the email is skipped. The host page (`/host`) shows whether email is configured.
 
 Note: Resend’s free test sender (`onboarding@resend.dev`) can only deliver to the
 email on your Resend account. For other inboxes, verify a domain in Resend and
