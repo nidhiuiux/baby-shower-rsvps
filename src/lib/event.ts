@@ -13,4 +13,6 @@ export const event = {
   location: "124 Crain Road, Paramus, NJ 07652",
   /** Simple PIN to view RSVP responses at /host */
   hostPin: "shower",
+  /** Email that receives a notification for every RSVP */
+  notifyEmail: "n.lukhi@student.fdu.edu",
 } as const;

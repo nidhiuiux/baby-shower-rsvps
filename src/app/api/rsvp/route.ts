@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { event } from "@/lib/event";
+import { sendRsvpNotification } from "@/lib/notify";
 import { addRsvp, deleteRsvp, listRsvps, type Attendance } from "@/lib/rsvps";
 
 function summarize(rsvps: Awaited<ReturnType<typeof listRsvps>>) {
@@ -56,17 +57,26 @@ export async function POST(request: Request) {
     note: trimmedNote,
   });
 
+  const notify = await sendRsvpNotification(
+    rsvp,
+    isManual ? "manual" : "guest",
+  );
+  if (!notify.sent) {
+    console.warn("RSVP saved, but email was not sent:", notify.reason);
+  }
+
   if (isManual) {
     const rsvps = await listRsvps();
     return NextResponse.json({
       ok: true,
       rsvp,
+      emailSent: notify.sent,
       rsvps,
       summary: summarize(rsvps),
     });
   }
 
-  return NextResponse.json({ ok: true, rsvp });
+  return NextResponse.json({ ok: true, rsvp, emailSent: notify.sent });
 }
 
 export async function GET(request: Request) {
