@@ -23,9 +23,13 @@ Edit `src/lib/event.ts`:
 
 ## How it works
 
-1. Guests visit the home page and submit: name, yes/no, guest count, optional note
-2. You open `/host`, enter your PIN, and see all responses plus a guest total
+1. **Guest link (share this):** `/` — RSVP form only. No host controls are shown.
+2. **Host link (keep private):** `/host` — enter your PIN to see responses and guest totals
 3. Responses are saved in `data/rsvps.json` on the server
+
+Example (local):
+- Guests: `http://127.0.0.1:43123`
+- You only: `http://127.0.0.1:43123/host`
 
 ## Scripts
 

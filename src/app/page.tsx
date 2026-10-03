@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BabyDoodles } from "@/components/baby-doodles";
 import { RsvpForm } from "@/components/rsvp-form";
 import { event } from "@/lib/event";
@@ -41,12 +40,6 @@ export default function Home() {
           <RsvpForm />
         </section>
       </main>
-
-      <footer className="px-5 pb-8 text-center text-sm text-[var(--ink-muted)]">
-        <Link href="/host" className="underline-offset-4 hover:text-[var(--ink-soft)] hover:underline">
-          Host: view responses
-        </Link>
-      </footer>
     </div>
   );
 }
