@@ -6,10 +6,13 @@ A simple RSVP link for your baby shower invitation. Guests open the page, answer
 
 ```bash
 npm install
-npm run dev -- --port 43123
+npm run dev
 ```
 
-Open [http://127.0.0.1:43123](http://127.0.0.1:43123) and share that link on your invitation.
+- On this computer: [http://127.0.0.1:43123](http://127.0.0.1:43123)
+- On a phone (public link): keep `npm run dev` running, then in another terminal run `npm run tunnel` and open the `https://….trycloudflare.com` URL it prints
+
+`127.0.0.1` only works on the same computer. Phones need the HTTPS tunnel link (or a deployed site).
 
 ## Personalize your invite
 

@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  allowedDevOrigins: [
+    "*.trycloudflare.com",
+    "retrieved-nails-mathematics-explosion.trycloudflare.com",
+  ],
 };
 
 export default nextConfig;
