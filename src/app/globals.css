@@ -372,8 +372,82 @@
   }
 }
 
+.invite-gate {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 35%, rgba(255, 255, 255, 0.72), transparent 70%),
+    linear-gradient(165deg, #f7f3ef 0%, #e8f0ea 48%, #f3e7e5 100%);
+  cursor: pointer;
+  animation: invite-gate-in 0.55s ease-out both;
+}
+
+.invite-gate-glow {
+  position: absolute;
+  inset: 18% 12% auto;
+  height: 42%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(232, 196, 192, 0.45), transparent 68%);
+  pointer-events: none;
+  animation: invite-pulse 2.8s ease-in-out infinite;
+}
+
+.invite-gate-icon {
+  animation: invite-bob 2.4s ease-in-out infinite;
+}
+
+.invite-content.is-sealed {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.invite-content.is-open {
+  animation: invite-reveal 0.65s ease-out both;
+}
+
 .music-toggle {
   animation: music-pop 0.55s ease-out both;
+}
+
+@keyframes invite-gate-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes invite-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes invite-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes invite-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes music-pop {
@@ -394,7 +468,11 @@
   .animate-rise,
   .animate-rise-delay,
   .animate-fade,
-  .music-toggle {
+  .music-toggle,
+  .invite-gate,
+  .invite-gate-glow,
+  .invite-gate-icon,
+  .invite-content.is-open {
     animation: none !important;
   }
 }
