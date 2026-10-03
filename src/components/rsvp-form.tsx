@@ -9,10 +9,16 @@ import type { Attendance } from "@/lib/rsvps";
 
 type Status = "idle" | "saving" | "done" | "error";
 
+function parseGuestCount(raw: string): number {
+  const n = Number(raw);
+  if (!raw.trim() || !Number.isFinite(n)) return 1;
+  return Math.min(20, Math.max(1, Math.round(n)));
+}
+
 export function RsvpForm() {
   const [name, setName] = useState("");
   const [attending, setAttending] = useState<Attendance | "">("");
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState("1");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -30,6 +36,11 @@ export function RsvpForm() {
       return;
     }
 
+    const guestCount = attending === "yes" ? parseGuestCount(guests) : 0;
+    if (attending === "yes") {
+      setGuests(String(guestCount));
+    }
+
     setStatus("saving");
     try {
       const res = await fetch("/api/rsvp", {
@@ -38,7 +49,7 @@ export function RsvpForm() {
         body: JSON.stringify({
           name: name.trim(),
           attending,
-          guests: attending === "yes" ? guests : 0,
+          guests: guestCount,
           note: note.trim(),
         }),
       });
@@ -128,11 +139,18 @@ export function RsvpForm() {
             id="guests"
             name="guests"
             type="number"
+            inputMode="numeric"
             min={1}
             max={20}
             value={guests}
-            onChange={(e) => setGuests(Number(e.target.value) || 1)}
-            className="h-12 w-28 border-[var(--line)] bg-white/70 text-base text-[var(--ink)]"
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "" || /^\d{0,2}$/.test(v)) {
+                setGuests(v);
+              }
+            }}
+            onBlur={() => setGuests(String(parseGuestCount(guests)))}
+            className="h-12 w-32 border-[var(--line)] bg-white/70 text-base text-[var(--ink)]"
           />
         </div>
       )}

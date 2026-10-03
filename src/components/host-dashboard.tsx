@@ -18,6 +18,12 @@ type EmailStatus = {
   configured: boolean;
 };
 
+function parseGuestCount(raw: string): number {
+  const n = Number(raw);
+  if (!raw.trim() || !Number.isFinite(n)) return 1;
+  return Math.min(20, Math.max(1, Math.round(n)));
+}
+
 export function HostDashboard() {
   const [pin, setPin] = useState("");
   const [rsvps, setRsvps] = useState<Rsvp[] | null>(null);
@@ -28,7 +34,7 @@ export function HostDashboard() {
 
   const [manualName, setManualName] = useState("");
   const [manualAttending, setManualAttending] = useState<Attendance>("yes");
-  const [manualGuests, setManualGuests] = useState(1);
+  const [manualGuests, setManualGuests] = useState("1");
   const [manualNote, setManualNote] = useState("");
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
@@ -69,6 +75,12 @@ export function HostDashboard() {
       setManualError("Enter a name.");
       return;
     }
+    const guestCount =
+      manualAttending === "yes" ? parseGuestCount(manualGuests) : 0;
+    if (manualAttending === "yes") {
+      setManualGuests(String(guestCount));
+    }
+
     setSavingManual(true);
     try {
       const res = await fetch("/api/rsvp", {
@@ -77,7 +89,7 @@ export function HostDashboard() {
         body: JSON.stringify({
           name: manualName.trim(),
           attending: manualAttending,
-          guests: manualAttending === "yes" ? manualGuests : 0,
+          guests: guestCount,
           note: manualNote.trim(),
           pin,
         }),
@@ -96,7 +108,7 @@ export function HostDashboard() {
       setSummary(data.summary ?? null);
       setManualName("");
       setManualNote("");
-      setManualGuests(1);
+      setManualGuests("1");
       setManualAttending("yes");
       if (data.emailSent === false) {
         setManualError(
@@ -256,11 +268,18 @@ export function HostDashboard() {
             <Input
               id="manual-guests"
               type="number"
+              inputMode="numeric"
               min={1}
               max={20}
               value={manualGuests}
-              onChange={(e) => setManualGuests(Number(e.target.value) || 1)}
-              className="h-12 w-28"
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || /^\d{0,2}$/.test(v)) {
+                  setManualGuests(v);
+                }
+              }}
+              onBlur={() => setManualGuests(String(parseGuestCount(manualGuests)))}
+              className="h-12 w-32"
             />
           </div>
         )}
