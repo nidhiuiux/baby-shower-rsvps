@@ -30,7 +30,7 @@ Edit `src/lib/event.ts`:
 Every new RSVP (guest form or host manual add) emails you.
 
 Emails are already addressed to `notifyEmail` in `src/lib/event.ts`
-(`n.lukhi@student.fdu.edu`). To turn sending on:
+(`nsavaliya93@gmail.com`). To turn sending on:
 
 1. Create a free account at [resend.com](https://resend.com) and make an API key
 2. In the project folder, copy the example env file:
@@ -40,7 +40,7 @@ Emails are already addressed to `notifyEmail` in `src/lib/event.ts`
 3. Put your key in `.env.local`:
    ```bash
    RESEND_API_KEY=re_your_real_key
-   NOTIFY_EMAIL=n.lukhi@student.fdu.edu
+   NOTIFY_EMAIL=nsavaliya93@gmail.com
    ```
 4. Restart the app (`npm run dev`)
 5. Submit a test RSVP — you should get an email within a few seconds
