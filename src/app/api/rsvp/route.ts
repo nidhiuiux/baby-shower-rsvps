@@ -69,6 +69,13 @@ export async function POST(request: Request) {
     rsvp,
     isManual ? "manual" : "guest",
   );
+  // On Vercel, the email payload is the durable store — fail if it did not send.
+  if (!notify.sent && process.env.VERCEL) {
+    return NextResponse.json(
+      { error: "Could not save RSVP. Please try again." },
+      { status: 502 },
+    );
+  }
   if (!notify.sent) {
     console.warn("RSVP saved, but email was not sent:", notify.reason);
   }

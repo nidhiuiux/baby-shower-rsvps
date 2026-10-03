@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { event } from "@/lib/event";
-import type { Rsvp } from "@/lib/rsvps";
+import { rsvpRecordBlock, type Rsvp } from "@/lib/rsvps";
 
 export type NotifyResult =
   | { sent: true; via: "resend" }
@@ -13,9 +13,7 @@ function notifyAddress(): string {
 function emailBody(rsvp: Rsvp, source: "guest" | "manual"): string {
   const status = rsvp.attending === "yes" ? "Coming" : "Can't make it";
   const guestLine =
-    rsvp.attending === "yes"
-      ? `Guests: ${rsvp.guests}`
-      : "Guests: 0";
+    rsvp.attending === "yes" ? `Guests: ${rsvp.guests}` : "Guests: 0";
   return [
     `New RSVP for ${event.brand}'s ${event.title}`,
     "",
@@ -29,6 +27,8 @@ function emailBody(rsvp: Rsvp, source: "guest" | "manual"): string {
     })}`,
     "",
     "Open your host page anytime to see the full list.",
+    "",
+    rsvpRecordBlock(rsvp),
   ].join("\n");
 }
 

@@ -62,6 +62,19 @@ Example (local):
 - Guests: `http://127.0.0.1:43123`
 - You only: `http://127.0.0.1:43123/host`
 
+
+## Permanent links (Vercel)
+
+Temporary Cloudflare tunnel links expire. For lasting guest + host URLs:
+
+1. Open the **claim** link from the latest deploy (or ask the agent to redeploy).
+2. Sign up / log in to Vercel (free) and claim the deployment.
+3. Your permanent URLs will be:
+   - Guest RSVP: `https://YOUR-PROJECT.vercel.app`
+   - Host: `https://YOUR-PROJECT.vercel.app/host` (PIN in `src/lib/event.ts`)
+
+RSVPs on Vercel are stored via Resend email records (same inbox as notifications), so they persist across deploys when `RESEND_API_KEY` is set.
+
 ## Scripts
 
 | Command | What it does |
