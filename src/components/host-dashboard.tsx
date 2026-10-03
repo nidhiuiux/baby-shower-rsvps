@@ -109,8 +109,6 @@ export function HostDashboard() {
       const data = (await res.json()) as {
         error?: string;
         rsvp?: Rsvp;
-        rsvps?: Rsvp[];
-        summary?: Summary;
         emailSent?: boolean;
       };
       if (!res.ok) {
@@ -118,13 +116,17 @@ export function HostDashboard() {
         return;
       }
 
-      // Prefer server list, but always keep the new person visible.
-      let next = data.rsvps ?? rsvps ?? [];
-      if (data.rsvp && !next.some((r) => r.id === data.rsvp!.id)) {
-        next = [data.rsvp, ...next];
+      if (!data.rsvp) {
+        setManualError("Could not add RSVP.");
+        return;
       }
+
+      const next = [
+        data.rsvp,
+        ...(rsvps ?? []).filter((r) => r.id !== data.rsvp!.id),
+      ];
       setRsvps(next);
-      setSummary(data.summary ?? buildSummary(next));
+      setSummary(buildSummary(next));
       setManualName("");
       setManualNote("");
       setManualGuests("1");
@@ -155,8 +157,7 @@ export function HostDashboard() {
       });
       const data = (await res.json()) as {
         error?: string;
-        rsvps?: Rsvp[];
-        summary?: Summary;
+        removedId?: string;
       };
       if (!res.ok) {
         setRsvps(previous);
@@ -164,9 +165,9 @@ export function HostDashboard() {
         setError(data.error || "Could not remove RSVP.");
         return;
       }
-      const next = (data.rsvps ?? optimistic).filter((r) => r.id !== id);
-      setRsvps(next);
-      setSummary(data.summary ?? buildSummary(next));
+      // Keep optimistic list — delete already applied in the UI.
+      setRsvps(optimistic);
+      setSummary(buildSummary(optimistic));
     } catch {
       setRsvps(previous);
       setSummary(buildSummary(previous));

@@ -232,41 +232,55 @@ export async function addRsvp(
   return entry;
 }
 
-export async function deleteRsvp(id: string): Promise<boolean> {
+export async function deleteRsvp(
+  id: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
   if (useResendStore()) {
-    const resend = resendClient();
+    const apiKey = process.env.RESEND_API_KEY?.trim();
     const to = notifyAddress();
-    if (!resend || !to) return false;
+    if (!apiKey) return { ok: false, reason: "Missing RESEND_API_KEY" };
+    if (!to) return { ok: false, reason: "Missing notify email" };
 
     const from =
       process.env.NOTIFY_FROM_EMAIL?.trim() ||
       "Baby Shower RSVP <onboarding@resend.dev>";
 
-    const { error } = await resend.emails.send({
-      from,
-      to: [to],
-      subject: `RSVP Delete: ${id}`,
-      text: [
-        "An RSVP was removed from the host dashboard.",
-        "",
-        DELETE_START,
-        JSON.stringify({ id }),
-        RECORD_END,
-      ].join("\n"),
+    // Use REST directly — more reliable than SDK in some serverless runs.
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: `RSVP Delete: ${id}`,
+        text: [
+          "An RSVP was removed from the host dashboard.",
+          "",
+          DELETE_START,
+          JSON.stringify({ id }),
+          RECORD_END,
+        ].join("\n"),
+      }),
     });
 
-    if (error) {
-      console.error("Resend delete marker error:", error);
-      return false;
+    if (!res.ok) {
+      const body = await res.text();
+      console.error("Resend delete marker error:", res.status, body);
+      return { ok: false, reason: `Email delete failed (${res.status})` };
     }
-    return true;
+    return { ok: true };
   }
 
   const rsvps = await listFromFile();
   const next = rsvps.filter((r) => r.id !== id);
-  if (next.length === rsvps.length) return false;
+  if (next.length === rsvps.length) {
+    return { ok: false, reason: "RSVP not found." };
+  }
   await fs.writeFile(dataFile, JSON.stringify(next, null, 2), "utf8");
-  return true;
+  return { ok: true };
 }
 
 export function rsvpRecordBlock(rsvp: Rsvp): string {

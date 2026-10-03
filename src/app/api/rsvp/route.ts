@@ -5,7 +5,6 @@ import {
   addRsvp,
   deleteRsvp,
   listRsvps,
-  mergeRsvpList,
   summarize,
   type Attendance,
 } from "@/lib/rsvps";
@@ -74,15 +73,11 @@ export async function POST(request: Request) {
   }
 
   if (isManual) {
-    // Resend list API can lag — always include the new row immediately.
-    const listed = await listRsvps();
-    const rsvps = mergeRsvpList(listed, { upsert: rsvp });
+    // Return only the new row; client merges into the open list instantly.
     return NextResponse.json({
       ok: true,
       rsvp,
       emailSent: notify.sent,
-      rsvps,
-      summary: summarize(rsvps),
     });
   }
 
@@ -127,16 +122,16 @@ export async function DELETE(request: Request) {
   }
 
   const removed = await deleteRsvp(id);
-  if (!removed) {
-    return NextResponse.json({ error: "Could not remove RSVP." }, { status: 502 });
+  if (!removed.ok) {
+    return NextResponse.json(
+      { error: removed.reason || "Could not remove RSVP." },
+      { status: 502 },
+    );
   }
 
-  // Filter locally so remove feels instant even if Resend list lags.
-  const listed = await listRsvps();
-  const rsvps = mergeRsvpList(listed, { removeId: id });
+  // Skip slow Resend re-list on delete — client already updates instantly.
   return NextResponse.json({
     ok: true,
-    rsvps,
-    summary: summarize(rsvps),
+    removedId: id,
   });
 }
