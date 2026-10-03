@@ -26,8 +26,8 @@ Edit `src/lib/event.ts`:
 
 ## How it works
 
-1. **Guest link (share this):** `/` — RSVP form only. No host controls are shown.
-2. **Host link (keep private):** `/host` — enter your PIN to see responses and guest totals
+1. **Guest link (share this):** `/` — simple RSVP (name, yes/no, optional note). No guest-count field.
+2. **Host link (keep private):** `/host` — enter your PIN to view responses, add people manually, or remove entries
 3. Responses are saved in `data/rsvps.json` on the server
 
 Example (local):
