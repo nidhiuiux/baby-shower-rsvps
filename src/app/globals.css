@@ -246,52 +246,45 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 0.55rem;
+  gap: 0.65rem;
   flex-wrap: nowrap;
 }
 
 @media (min-width: 480px) {
   .doodle-row {
-    gap: 0.9rem;
+    gap: 1rem;
   }
 }
 
 .doodle {
   flex-shrink: 0;
   height: auto;
-  opacity: 0.88;
+  opacity: 0.9;
   animation: doodle-bob 5.5s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(47, 61, 52, 0.06));
 }
 
-.doodle-xs {
-  width: 2.15rem;
-}
-
 .doodle-sm {
-  width: 2.6rem;
+  width: 2.35rem;
 }
 
 .doodle-md {
-  width: 3.15rem;
+  width: 3.1rem;
 }
 
 .doodle-lg {
-  width: 3.6rem;
+  width: 2.85rem;
 }
 
 @media (min-width: 480px) {
-  .doodle-xs {
-    width: 2.5rem;
-  }
   .doodle-sm {
-    width: 3rem;
+    width: 2.75rem;
   }
   .doodle-md {
-    width: 3.6rem;
+    width: 3.55rem;
   }
   .doodle-lg {
-    width: 4.1rem;
+    width: 3.25rem;
   }
 }
 
@@ -299,39 +292,16 @@
   animation-delay: 0s;
 }
 .doodle-delay-1 {
-  animation-delay: -0.7s;
+  animation-delay: -0.9s;
 }
 .doodle-delay-2 {
-  animation-delay: -1.5s;
+  animation-delay: -1.8s;
 }
 .doodle-delay-3 {
-  animation-delay: -2.2s;
+  animation-delay: -2.7s;
 }
 .doodle-delay-4 {
-  animation-delay: -3s;
-}
-.doodle-delay-5 {
-  animation-delay: -3.8s;
-}
-
-.hide-mobile-xs {
-  display: none;
-}
-
-@media (min-width: 380px) {
-  .hide-mobile-xs {
-    display: block;
-  }
-}
-
-.hide-mobile {
-  display: none;
-}
-
-@media (min-width: 540px) {
-  .hide-mobile {
-    display: block;
-  }
+  animation-delay: -3.6s;
 }
 
 @keyframes doodle-bob {
@@ -340,7 +310,7 @@
     transform: translateY(0) rotate(-2deg);
   }
   50% {
-    transform: translateY(-7px) rotate(3deg);
+    transform: translateY(-6px) rotate(2.5deg);
   }
 }
 
@@ -354,104 +324,51 @@
 
 .float-doodle {
   position: absolute;
-  opacity: 0.22;
-  animation: float-soft 12s ease-in-out infinite;
-}
-
-.float-a {
-  width: 3.4rem;
-  top: 8%;
-  left: 4%;
-  animation-delay: 0s;
-}
-
-.float-b {
-  width: 3.2rem;
-  top: 22%;
-  right: 3%;
-  animation-delay: -3s;
-  animation-duration: 14s;
-}
-
-.float-c {
-  width: 3.6rem;
-  bottom: 18%;
-  left: 2%;
-  animation-delay: -6s;
-  animation-duration: 16s;
-  opacity: 0.16;
-}
-
-.float-d {
-  width: 2.8rem;
-  bottom: 28%;
-  right: 5%;
-  animation-delay: -8s;
-  opacity: 0.18;
-}
-
-.float-heart-1 {
-  width: 1rem;
-  top: 14%;
-  left: 22%;
-  opacity: 0.35;
-  animation-delay: -1s;
-  animation-duration: 9s;
+  animation: float-soft 14s ease-in-out infinite;
 }
 
 .float-star-1 {
-  width: 0.95rem;
-  top: 10%;
-  right: 20%;
-  opacity: 0.32;
-  animation-delay: -4s;
-  animation-duration: 11s;
-}
-
-.float-heart-2 {
   width: 0.85rem;
-  bottom: 22%;
-  right: 18%;
-  opacity: 0.28;
-  animation-delay: -5s;
-}
-
-.float-star-2 {
-  width: 0.9rem;
-  bottom: 12%;
-  left: 16%;
-  opacity: 0.28;
-  animation-delay: -7s;
+  top: 12%;
+  right: 12%;
+  opacity: 0.18;
+  animation-delay: -2s;
   animation-duration: 13s;
 }
 
-.float-heart-3 {
-  width: 0.75rem;
-  top: 42%;
+.float-star-2 {
+  width: 0.7rem;
+  bottom: 18%;
+  left: 10%;
+  opacity: 0.14;
+  animation-delay: -6s;
+  animation-duration: 15s;
+}
+
+.float-star-3 {
+  width: 0.65rem;
+  top: 38%;
   left: 6%;
-  opacity: 0.22;
-  animation-delay: -2s;
-  animation-duration: 10s;
+  opacity: 0.12;
+  animation-delay: -4s;
+  animation-duration: 12s;
 }
 
 @keyframes float-soft {
   0%,
   100% {
-    transform: translateY(0) rotate(-4deg);
+    transform: translateY(0) rotate(-3deg);
   }
   50% {
-    transform: translateY(-14px) rotate(5deg);
+    transform: translateY(-10px) rotate(3deg);
   }
 }
 
 @media (max-width: 639px) {
-  .float-c,
-  .float-d {
+  .float-star-1,
+  .float-star-2,
+  .float-star-3 {
     opacity: 0.1;
-  }
-  .float-a,
-  .float-b {
-    opacity: 0.14;
   }
 }
 
