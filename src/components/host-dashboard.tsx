@@ -24,6 +24,16 @@ function parseGuestCount(raw: string): number {
   return Math.min(20, Math.max(1, Math.round(n)));
 }
 
+function buildSummary(list: Rsvp[]): Summary {
+  const yes = list.filter((r) => r.attending === "yes");
+  return {
+    total: list.length,
+    yes: yes.length,
+    no: list.length - yes.length,
+    headcount: yes.reduce((sum, r) => sum + r.guests, 0),
+  };
+}
+
 export function HostDashboard() {
   const [pin, setPin] = useState("");
   const [rsvps, setRsvps] = useState<Rsvp[] | null>(null);
@@ -38,6 +48,7 @@ export function HostDashboard() {
   const [manualNote, setManualNote] = useState("");
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   async function loadResponses(e: React.FormEvent) {
     e.preventDefault();
@@ -71,6 +82,7 @@ export function HostDashboard() {
   async function addManual(e: React.FormEvent) {
     e.preventDefault();
     setManualError("");
+    setError("");
     if (!manualName.trim()) {
       setManualError("Enter a name.");
       return;
@@ -96,6 +108,7 @@ export function HostDashboard() {
       });
       const data = (await res.json()) as {
         error?: string;
+        rsvp?: Rsvp;
         rsvps?: Rsvp[];
         summary?: Summary;
         emailSent?: boolean;
@@ -104,19 +117,18 @@ export function HostDashboard() {
         setManualError(data.error || "Could not add RSVP.");
         return;
       }
-      setRsvps(data.rsvps ?? []);
-      setSummary(data.summary ?? null);
+
+      // Prefer server list, but always keep the new person visible.
+      let next = data.rsvps ?? rsvps ?? [];
+      if (data.rsvp && !next.some((r) => r.id === data.rsvp!.id)) {
+        next = [data.rsvp, ...next];
+      }
+      setRsvps(next);
+      setSummary(data.summary ?? buildSummary(next));
       setManualName("");
       setManualNote("");
       setManualGuests("1");
       setManualAttending("yes");
-      if (data.emailSent === false) {
-        setManualError(
-          emailStatus?.configured
-            ? "Saved, but the email alert failed to send. Check your Resend key and restart."
-            : "Saved. Email alert was not sent — add RESEND_API_KEY to .env.local (see README), then restart.",
-        );
-      }
     } catch {
       setManualError("Could not add RSVP. Please try again.");
     } finally {
@@ -125,6 +137,16 @@ export function HostDashboard() {
   }
 
   async function removeRsvp(id: string) {
+    if (removingId) return;
+    setError("");
+    setRemovingId(id);
+
+    // Instant UI remove; roll back if server fails.
+    const previous = rsvps ?? [];
+    const optimistic = previous.filter((r) => r.id !== id);
+    setRsvps(optimistic);
+    setSummary(buildSummary(optimistic));
+
     try {
       const res = await fetch("/api/rsvp", {
         method: "DELETE",
@@ -137,13 +159,20 @@ export function HostDashboard() {
         summary?: Summary;
       };
       if (!res.ok) {
+        setRsvps(previous);
+        setSummary(buildSummary(previous));
         setError(data.error || "Could not remove RSVP.");
         return;
       }
-      setRsvps(data.rsvps ?? []);
-      setSummary(data.summary ?? null);
+      const next = (data.rsvps ?? optimistic).filter((r) => r.id !== id);
+      setRsvps(next);
+      setSummary(data.summary ?? buildSummary(next));
     } catch {
+      setRsvps(previous);
+      setSummary(buildSummary(previous));
       setError("Could not remove RSVP. Please try again.");
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -175,9 +204,6 @@ export function HostDashboard() {
         >
           {loading ? "Checking…" : "Open host access"}
         </Button>
-        <p className="text-center text-sm text-[var(--ink-muted)]">
-          Default PIN is set in <code className="text-[var(--ink-soft)]">src/lib/event.ts</code>
-        </p>
       </form>
     );
   }
@@ -198,9 +224,8 @@ export function HostDashboard() {
             </p>
           ) : (
             <p>
-              Email alerts are not on yet. Add <code>RESEND_API_KEY</code> to{" "}
-              <code>.env.local</code> (see README), then restart the app. Alerts
-              go to <strong>{emailStatus.notifyEmail}</strong>.
+              Email alerts are not on yet. Add <code>RESEND_API_KEY</code> in
+              your deploy settings.
             </p>
           )}
         </div>
@@ -348,9 +373,10 @@ export function HostDashboard() {
                   type="button"
                   variant="outline"
                   size="sm"
+                  disabled={removingId === rsvp.id}
                   onClick={() => removeRsvp(rsvp.id)}
                 >
-                  Remove
+                  {removingId === rsvp.id ? "Removing…" : "Remove"}
                 </Button>
               </div>
             </li>

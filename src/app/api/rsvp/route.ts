@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
 import { event } from "@/lib/event";
 import { sendRsvpNotification } from "@/lib/notify";
-import { addRsvp, deleteRsvp, listRsvps, type Attendance } from "@/lib/rsvps";
-
-function summarize(rsvps: Awaited<ReturnType<typeof listRsvps>>) {
-  const yes = rsvps.filter((r) => r.attending === "yes");
-  const no = rsvps.filter((r) => r.attending === "no");
-  const headcount = yes.reduce((sum, r) => sum + r.guests, 0);
-  return {
-    total: rsvps.length,
-    yes: yes.length,
-    no: no.length,
-    headcount,
-  };
-}
+import {
+  addRsvp,
+  deleteRsvp,
+  listRsvps,
+  mergeRsvpList,
+  summarize,
+  type Attendance,
+} from "@/lib/rsvps";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -29,7 +24,6 @@ export async function POST(request: Request) {
 
   const { name, attending, guests, note, pin } = body as Record<string, unknown>;
 
-  // Manual host entry requires PIN; public guest RSVP does not send a pin
   const isManual = typeof pin === "string" && pin.length > 0;
   if (isManual && pin !== event.hostPin) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
@@ -69,7 +63,6 @@ export async function POST(request: Request) {
     rsvp,
     isManual ? "manual" : "guest",
   );
-  // On Vercel, the email payload is the durable store — fail if it did not send.
   if (!notify.sent && process.env.VERCEL) {
     return NextResponse.json(
       { error: "Could not save RSVP. Please try again." },
@@ -81,7 +74,9 @@ export async function POST(request: Request) {
   }
 
   if (isManual) {
-    const rsvps = await listRsvps();
+    // Resend list API can lag — always include the new row immediately.
+    const listed = await listRsvps();
+    const rsvps = mergeRsvpList(listed, { upsert: rsvp });
     return NextResponse.json({
       ok: true,
       rsvp,
@@ -133,10 +128,12 @@ export async function DELETE(request: Request) {
 
   const removed = await deleteRsvp(id);
   if (!removed) {
-    return NextResponse.json({ error: "RSVP not found." }, { status: 404 });
+    return NextResponse.json({ error: "Could not remove RSVP." }, { status: 502 });
   }
 
-  const rsvps = await listRsvps();
+  // Filter locally so remove feels instant even if Resend list lags.
+  const listed = await listRsvps();
+  const rsvps = mergeRsvpList(listed, { removeId: id });
   return NextResponse.json({
     ok: true,
     rsvps,

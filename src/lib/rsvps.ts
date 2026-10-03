@@ -77,7 +77,12 @@ function extractJsonBlock(text: string, start: string): unknown | null {
   }
 }
 
-function parseLegacyEmail(subject: string, text: string, emailId: string, createdAt: string): Rsvp | null {
+function parseLegacyEmail(
+  subject: string,
+  text: string,
+  emailId: string,
+  createdAt: string,
+): Rsvp | null {
   if (!subject.startsWith("RSVP Yes:") && !subject.startsWith("RSVP No:")) {
     return null;
   }
@@ -85,7 +90,9 @@ function parseLegacyEmail(subject: string, text: string, emailId: string, create
   const nameMatch = text.match(/^Name:\s*(.+)$/m);
   const guestsMatch = text.match(/^Guests:\s*(\d+)/m);
   const noteMatch = text.match(/^Note:\s*(.+)$/m);
-  const name = nameMatch?.[1]?.trim() || subject.replace(/^RSVP (Yes|No):\s*/i, "").split("—")[0].trim();
+  const name =
+    nameMatch?.[1]?.trim() ||
+    subject.replace(/^RSVP (Yes|No):\s*/i, "").split("—")[0].trim();
   if (!name) return null;
   const noteRaw = noteMatch?.[1]?.trim() || "";
   return normalizeRsvp({
@@ -106,27 +113,46 @@ async function listFromResend(): Promise<Rsvp[]> {
   const deleted = new Set<string>();
   let after: string | undefined;
 
-  for (let page = 0; page < 20; page += 1) {
-    const { data, error } = await resend.emails.list(after ? { after } : undefined);
+  for (let page = 0; page < 10; page += 1) {
+    const { data, error } = await resend.emails.list(
+      after ? { after } : undefined,
+    );
     if (error || !data) {
       console.error("Resend list error:", error);
       break;
     }
 
-    for (const item of data.data) {
-      const { data: full, error: fullError } = await resend.emails.get(item.id);
-      if (fullError || !full?.text) continue;
-      const text = full.text;
+    // Fetch email bodies in parallel for speed
+    const details = await Promise.all(
+      data.data.map(async (item) => {
+        const { data: full, error: fullError } = await resend.emails.get(item.id);
+        if (fullError || !full?.text) return null;
+        return { item, full };
+      }),
+    );
+
+    for (const row of details) {
+      if (!row) continue;
+      const { item, full } = row;
+      const text = full.text || "";
 
       const deletePayload = extractJsonBlock(text, DELETE_START);
-      if (deletePayload && typeof deletePayload === "object" && deletePayload !== null) {
+      if (
+        deletePayload &&
+        typeof deletePayload === "object" &&
+        deletePayload !== null
+      ) {
         const id = String((deletePayload as { id?: string }).id || "");
         if (id) deleted.add(id);
         continue;
       }
 
       const recordPayload = extractJsonBlock(text, RECORD_START);
-      if (recordPayload && typeof recordPayload === "object" && recordPayload !== null) {
+      if (
+        recordPayload &&
+        typeof recordPayload === "object" &&
+        recordPayload !== null
+      ) {
         const rsvp = normalizeRsvp(recordPayload as Partial<Rsvp>);
         if (!records.has(rsvp.id)) records.set(rsvp.id, rsvp);
         continue;
@@ -172,6 +198,21 @@ export async function listRsvps(): Promise<Rsvp[]> {
   return listFromFile();
 }
 
+/** Merge helper for Resend lag right after create/delete. */
+export function mergeRsvpList(
+  current: Rsvp[],
+  opts: { upsert?: Rsvp; removeId?: string },
+): Rsvp[] {
+  let next = current.slice();
+  if (opts.removeId) {
+    next = next.filter((r) => r.id !== opts.removeId);
+  }
+  if (opts.upsert) {
+    next = [opts.upsert, ...next.filter((r) => r.id !== opts.upsert!.id)];
+  }
+  return next;
+}
+
 export async function addRsvp(
   input: Omit<Rsvp, "id" | "createdAt">,
 ): Promise<Rsvp> {
@@ -182,7 +223,6 @@ export async function addRsvp(
   });
 
   if (useResendStore()) {
-    // Durable copy is written via the notification email payload.
     return entry;
   }
 
@@ -197,9 +237,6 @@ export async function deleteRsvp(id: string): Promise<boolean> {
     const resend = resendClient();
     const to = notifyAddress();
     if (!resend || !to) return false;
-
-    const existing = await listFromResend();
-    if (!existing.some((r) => r.id === id)) return false;
 
     const from =
       process.env.NOTIFY_FROM_EMAIL?.trim() ||
@@ -234,4 +271,16 @@ export async function deleteRsvp(id: string): Promise<boolean> {
 
 export function rsvpRecordBlock(rsvp: Rsvp): string {
   return [RECORD_START, JSON.stringify(rsvp), RECORD_END].join("\n");
+}
+
+export function summarize(rsvps: Rsvp[]) {
+  const yes = rsvps.filter((r) => r.attending === "yes");
+  const no = rsvps.filter((r) => r.attending === "no");
+  const headcount = yes.reduce((sum, r) => sum + r.guests, 0);
+  return {
+    total: rsvps.length,
+    yes: yes.length,
+    no: no.length,
+    headcount,
+  };
 }
