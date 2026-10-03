@@ -89,6 +89,10 @@ export async function GET(request: Request) {
   return NextResponse.json({
     rsvps,
     summary: summarize(rsvps),
+    email: {
+      notifyEmail: process.env.NOTIFY_EMAIL || event.notifyEmail,
+      configured: Boolean(process.env.RESEND_API_KEY?.trim()),
+    },
   });
 }
 

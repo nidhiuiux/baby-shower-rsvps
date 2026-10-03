@@ -12,10 +12,16 @@ type Summary = {
   no: number;
 };
 
+type EmailStatus = {
+  notifyEmail: string;
+  configured: boolean;
+};
+
 export function HostDashboard() {
   const [pin, setPin] = useState("");
   const [rsvps, setRsvps] = useState<Rsvp[] | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 

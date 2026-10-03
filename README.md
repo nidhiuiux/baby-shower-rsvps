@@ -27,22 +27,27 @@ Edit `src/lib/event.ts`:
 
 ## Email notifications
 
-Every new RSVP (guest form or host manual add) emails `notifyEmail`.
+Every new RSVP (guest form or host manual add) emails you.
 
-**Works out of the box** via FormSubmit:
-1. Set `notifyEmail` in `src/lib/event.ts` (already set for you)
-2. Submit one test RSVP
-3. Check your inbox for FormSubmit’s **activation / confirm** email and click it once
-4. After that, each RSVP sends you a confirmation email
+Emails are already addressed to `notifyEmail` in `src/lib/event.ts`
+(`n.lukhi@student.fdu.edu`). To turn sending on:
 
-**Optional (more reliable):** create a free [Resend](https://resend.com) API key, copy `.env.example` to `.env.local`, and set:
+1. Create a free account at [resend.com](https://resend.com) and make an API key
+2. In the project folder, copy the example env file:
+   ```bash
+   cp .env.example .env.local
+   ```
+3. Put your key in `.env.local`:
+   ```bash
+   RESEND_API_KEY=re_your_real_key
+   NOTIFY_EMAIL=n.lukhi@student.fdu.edu
+   ```
+4. Restart the app (`npm run dev`)
+5. Submit a test RSVP — you should get an email within a few seconds
 
-```bash
-RESEND_API_KEY=re_xxxxxxxx
-NOTIFY_EMAIL=you@example.com
-```
-
-Then restart `npm run dev`.
+Note: Resend’s free test sender (`onboarding@resend.dev`) can only deliver to the
+email on your Resend account. For other inboxes, verify a domain in Resend and
+set `NOTIFY_FROM_EMAIL`.
 
 ## How it works
 
