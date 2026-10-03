@@ -7,6 +7,7 @@ export type Rsvp = {
   id: string;
   name: string;
   attending: Attendance;
+  guests: number;
   note: string;
   createdAt: string;
 };
@@ -23,20 +24,35 @@ async function ensureStore(): Promise<void> {
   }
 }
 
+function normalizeGuests(
+  attending: Attendance,
+  guests: unknown,
+): number {
+  if (attending === "no") return 0;
+  if (typeof guests === "number" && Number.isFinite(guests)) {
+    return Math.min(20, Math.max(1, Math.round(guests)));
+  }
+  // Older rows without guests: treat attending yes as 1
+  return 1;
+}
+
 export async function listRsvps(): Promise<Rsvp[]> {
   await ensureStore();
   const raw = await fs.readFile(dataFile, "utf8");
   try {
-    const parsed = JSON.parse(raw) as Array<Rsvp & { guests?: number }>;
+    const parsed = JSON.parse(raw) as Array<Partial<Rsvp> & { guests?: number }>;
     if (!Array.isArray(parsed)) return [];
-    // Drop legacy guest-count field from older saved rows
-    return parsed.map(({ id, name, attending, note, createdAt }) => ({
-      id,
-      name,
-      attending,
-      note: note ?? "",
-      createdAt,
-    }));
+    return parsed.map((row) => {
+      const attending: Attendance = row.attending === "no" ? "no" : "yes";
+      return {
+        id: String(row.id ?? crypto.randomUUID()),
+        name: String(row.name ?? ""),
+        attending,
+        guests: normalizeGuests(attending, row.guests),
+        note: String(row.note ?? ""),
+        createdAt: String(row.createdAt ?? new Date().toISOString()),
+      };
+    });
   } catch {
     return [];
   }
@@ -48,6 +64,7 @@ export async function addRsvp(
   const rsvps = await listRsvps();
   const entry: Rsvp = {
     ...input,
+    guests: normalizeGuests(input.attending, input.guests),
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };

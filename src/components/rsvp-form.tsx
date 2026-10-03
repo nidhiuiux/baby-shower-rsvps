@@ -12,6 +12,7 @@ type Status = "idle" | "saving" | "done" | "error";
 export function RsvpForm() {
   const [name, setName] = useState("");
   const [attending, setAttending] = useState<Attendance | "">("");
+  const [guests, setGuests] = useState(1);
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -37,6 +38,7 @@ export function RsvpForm() {
         body: JSON.stringify({
           name: name.trim(),
           attending,
+          guests: attending === "yes" ? guests : 0,
           note: note.trim(),
         }),
       });
@@ -116,6 +118,24 @@ export function RsvpForm() {
           })}
         </div>
       </fieldset>
+
+      {attending === "yes" && (
+        <div className="space-y-2 animate-fade">
+          <Label htmlFor="guests" className="text-[var(--ink)]">
+            Number of guests (including you)
+          </Label>
+          <Input
+            id="guests"
+            name="guests"
+            type="number"
+            min={1}
+            max={20}
+            value={guests}
+            onChange={(e) => setGuests(Number(e.target.value) || 1)}
+            className="h-12 w-28 border-[var(--line)] bg-white/70 text-base text-[var(--ink)]"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="note" className="text-[var(--ink)]">

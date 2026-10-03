@@ -12,11 +12,16 @@ function notifyAddress(): string {
 
 function emailBody(rsvp: Rsvp, source: "guest" | "manual"): string {
   const status = rsvp.attending === "yes" ? "Coming" : "Can't make it";
+  const guestLine =
+    rsvp.attending === "yes"
+      ? `Guests: ${rsvp.guests}`
+      : "Guests: 0";
   return [
     `New RSVP for ${event.brand}'s ${event.title}`,
     "",
     `Name: ${rsvp.name}`,
     `Status: ${status}`,
+    guestLine,
     `Note: ${rsvp.note || "(none)"}`,
     `Source: ${source === "manual" ? "Added manually by host" : "Guest RSVP form"}`,
     `Time: ${new Date(rsvp.createdAt).toLocaleString("en-US", {

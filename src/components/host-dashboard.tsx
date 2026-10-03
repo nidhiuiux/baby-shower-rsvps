@@ -10,6 +10,7 @@ type Summary = {
   total: number;
   yes: number;
   no: number;
+  headcount: number;
 };
 
 type EmailStatus = {
@@ -27,6 +28,7 @@ export function HostDashboard() {
 
   const [manualName, setManualName] = useState("");
   const [manualAttending, setManualAttending] = useState<Attendance>("yes");
+  const [manualGuests, setManualGuests] = useState(1);
   const [manualNote, setManualNote] = useState("");
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
@@ -75,6 +77,7 @@ export function HostDashboard() {
         body: JSON.stringify({
           name: manualName.trim(),
           attending: manualAttending,
+          guests: manualAttending === "yes" ? manualGuests : 0,
           note: manualNote.trim(),
           pin,
         }),
@@ -93,6 +96,7 @@ export function HostDashboard() {
       setSummary(data.summary ?? null);
       setManualName("");
       setManualNote("");
+      setManualGuests(1);
       setManualAttending("yes");
       if (data.emailSent === false) {
         setManualError(
@@ -191,11 +195,12 @@ export function HostDashboard() {
       )}
 
       {summary && (
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           {[
             { label: "Responses", value: summary.total },
             { label: "Coming", value: summary.yes },
             { label: "Can't make it", value: summary.no },
+            { label: "Guest total", value: summary.headcount },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl bg-white/70 px-4 py-5 text-center">
               <p className="font-display text-3xl text-[var(--ink)]">{item.value}</p>
@@ -245,6 +250,20 @@ export function HostDashboard() {
             </button>
           ))}
         </div>
+        {manualAttending === "yes" && (
+          <div className="space-y-2">
+            <Label htmlFor="manual-guests">Number of guests (including them)</Label>
+            <Input
+              id="manual-guests"
+              type="number"
+              min={1}
+              max={20}
+              value={manualGuests}
+              onChange={(e) => setManualGuests(Number(e.target.value) || 1)}
+              className="h-12 w-28"
+            />
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="manual-note">
             Note <span className="font-normal text-[var(--ink-muted)]">(optional)</span>
@@ -298,7 +317,9 @@ export function HostDashboard() {
                         : "text-[var(--ink-muted)]"
                     }`}
                   >
-                    {rsvp.attending === "yes" ? "Coming" : "Can't make it"}
+                    {rsvp.attending === "yes"
+                      ? `Coming · ${rsvp.guests} guest${rsvp.guests === 1 ? "" : "s"}`
+                      : "Can't make it"}
                   </p>
                   {rsvp.note && (
                     <p className="mt-2 text-sm text-[var(--ink-soft)]">{rsvp.note}</p>

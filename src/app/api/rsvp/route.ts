@@ -6,10 +6,12 @@ import { addRsvp, deleteRsvp, listRsvps, type Attendance } from "@/lib/rsvps";
 function summarize(rsvps: Awaited<ReturnType<typeof listRsvps>>) {
   const yes = rsvps.filter((r) => r.attending === "yes");
   const no = rsvps.filter((r) => r.attending === "no");
+  const headcount = yes.reduce((sum, r) => sum + r.guests, 0);
   return {
     total: rsvps.length,
     yes: yes.length,
     no: no.length,
+    headcount,
   };
 }
 
@@ -25,7 +27,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const { name, attending, note, pin } = body as Record<string, unknown>;
+  const { name, attending, guests, note, pin } = body as Record<string, unknown>;
 
   // Manual host entry requires PIN; public guest RSVP does not send a pin
   const isManual = typeof pin === "string" && pin.length > 0;
@@ -48,12 +50,18 @@ export async function POST(request: Request) {
     );
   }
 
+  const guestCount =
+    attending === "yes"
+      ? Math.min(20, Math.max(1, Number(guests) || 1))
+      : 0;
+
   const trimmedNote =
     typeof note === "string" ? note.trim().slice(0, 500) : "";
 
   const rsvp = await addRsvp({
     name: trimmedName,
     attending: attending as Attendance,
+    guests: guestCount,
     note: trimmedNote,
   });
 
