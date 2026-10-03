@@ -4,7 +4,7 @@
  */
 export const event = {
   /** Shown large on the page — usually the parents' names */
-  brand: "Alex & Jordan",
+  brand: "Nidhi & Hardik",
   title: "Baby Shower",
   tagline: "We'd love to celebrate with you. Please let us know if you can make it.",
   date: "Saturday, November 15 · 2:00 PM",
