@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BabyDoodles } from "@/components/baby-doodles";
 import { RsvpForm } from "@/components/rsvp-form";
 import { event } from "@/lib/event";
 
@@ -11,7 +12,11 @@ export default function Home() {
 
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-5 py-12 sm:px-6 sm:py-16">
         <header className="animate-rise mb-10 text-center sm:mb-12">
-          <p className="font-display text-5xl leading-none tracking-tight text-[var(--ink)] sm:text-6xl md:text-7xl">
+          <BabyDoodles />
+          <p className="mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--leaf-deep)] sm:text-base">
+            {event.eyebrow}
+          </p>
+          <p className="mt-3 font-display text-5xl leading-none tracking-tight text-[var(--ink)] sm:text-6xl md:text-7xl">
             {event.brand}
           </p>
           <p className="mt-3 font-display text-2xl italic text-[var(--leaf-deep)] sm:text-3xl">

@@ -217,8 +217,52 @@
   animation: fade 0.35s ease-out both;
 }
 
+.doodle-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.doodle {
+  color: var(--leaf-deep);
+  opacity: 0.78;
+  animation: doodle-bob 5.5s ease-in-out infinite;
+}
+
+.doodle-cradle {
+  width: 4.5rem;
+  height: auto;
+  animation-delay: 0s;
+}
+
+.doodle-baby {
+  width: 3.4rem;
+  height: auto;
+  color: var(--blush-deep);
+  opacity: 0.72;
+  animation-delay: -1.8s;
+}
+
+.doodle-rattle {
+  width: 2.8rem;
+  height: auto;
+  animation-delay: -3.2s;
+}
+
+@keyframes doodle-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .petal,
+  .doodle,
   .animate-rise,
   .animate-rise-delay,
   .animate-fade {
