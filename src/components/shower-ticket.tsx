@@ -51,7 +51,7 @@ export function ShowerTicket({
   }, []);
 
   return (
-    <div ref={frame} className="mx-auto w-full max-w-[680px]">
+    <div ref={frame} className="mx-auto w-full max-w-2xl">
       <div className="flex justify-center" style={{ filter: "drop-shadow(0 22px 28px rgba(47, 61, 52, 0.16))" }}>
         <AdmitOneTicket
           name={name}

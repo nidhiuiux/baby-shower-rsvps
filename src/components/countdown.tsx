@@ -8,7 +8,8 @@ import { useCopy } from "@/lib/i18n";
 export function Countdown() {
   const { t } = useCopy();
   const target = new Date(event.startsAt).getTime();
-  const [done, setDone] = useState(() => Date.now() >= target);
+  // The static HTML may have been built before the event. Match it during hydration.
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const check = () => setDone(Date.now() >= target);
@@ -31,7 +32,7 @@ export function Countdown() {
       role="timer"
       aria-label={t.countdownAria}
     >
-      <p className="mb-4 text-center text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[var(--leaf-deep)]">
+      <p className="eyebrow mb-5 text-center">
         {t.countdownLabel}
       </p>
       <VaporCountdown

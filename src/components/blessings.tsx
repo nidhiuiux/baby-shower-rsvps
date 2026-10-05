@@ -10,7 +10,7 @@ export function SahibBandgi() {
   const { t } = useCopy();
   return (
     <Reveal>
-      <section aria-labelledby="sahib-bandgi" className="mx-auto mt-12 max-w-xl text-center sm:mt-16">
+      <section aria-labelledby="sahib-bandgi" className="content-width section-space text-center">
         <div className="art-halo mx-auto w-52 sm:w-64">
           <KabirSaheb
             alt={t.kabirAlt}
@@ -18,7 +18,7 @@ export function SahibBandgi() {
             className="h-auto w-full"
           />
         </div>
-        <p className="eyebrow mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
+        <p className="eyebrow mt-6">
           {t.blessingEyebrow}
         </p>
         <h2
@@ -32,7 +32,7 @@ export function SahibBandgi() {
           {event.blessing.transliteration}
         </p>
         <LotusDivider className="mt-4" />
-        <p className="mx-auto mt-4 max-w-md text-[0.95rem] leading-relaxed text-[var(--ink-soft)] sm:text-base">
+        <p className="section-copy mx-auto mt-4 max-w-md">
           {t.blessingMessage}
         </p>
       </section>
@@ -47,20 +47,20 @@ export function ShrimantSanskar() {
     <Reveal>
       <section
         aria-labelledby="shrimant-sanskar"
-        className="mx-auto mt-12 w-full max-w-xl rounded-[1.75rem] border border-white/70 bg-white/55 px-6 py-8 text-center shadow-[0_20px_60px_-30px_rgba(47,61,52,0.35)] backdrop-blur-sm sm:mt-16 sm:grid sm:max-w-2xl sm:grid-cols-[13rem_1fr] sm:items-center sm:gap-8 sm:px-8 sm:text-left"
+        className="content-width section-space surface-card panel-padding text-center sm:grid sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center sm:gap-8 sm:text-left"
       >
         <MotherToBe sizes="(min-width: 640px) 208px, 176px" className="mx-auto h-auto w-44 sm:w-52" />
         <div className="mt-5 sm:mt-0">
-          <p className="eyebrow text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
+          <p className="eyebrow">
             {t.shrimantEyebrow}
           </p>
-          <h2 id="shrimant-sanskar" className="mt-2 font-display text-3xl leading-tight text-[var(--ink)] sm:text-4xl">
+          <h2 id="shrimant-sanskar" className="section-heading mt-2">
             {t.shrimantTitle}
           </h2>
           <p className="mt-3 font-display text-lg italic leading-snug text-[var(--blush-deep)]">
             {t.shrimantLine}
           </p>
-          <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--ink-soft)]">{t.shrimantMessage}</p>
+          <p className="section-copy mt-3">{t.shrimantMessage}</p>
         </div>
       </section>
     </Reveal>
@@ -72,7 +72,7 @@ export function WithLove() {
   const { t } = useCopy();
   return (
     <Reveal>
-      <footer className="mx-auto mt-14 text-center sm:mt-20">
+      <footer className="content-width section-space text-center">
         <div className="mx-auto flex max-w-sm items-end justify-center gap-3 sm:max-w-md sm:gap-6">
           <KrishnaWithFlute sizes="(min-width: 640px) 200px, 45vw" className="art-float h-auto w-[46%]" />
           <BabyRadha sizes="(min-width: 640px) 200px, 45vw" className="art-float art-float-delay h-auto w-[46%]" />

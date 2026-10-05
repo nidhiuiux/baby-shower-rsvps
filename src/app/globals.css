@@ -53,12 +53,12 @@
 :root {
   --ink: #2f3d34;
   --ink-soft: #5a6b60;
-  --ink-muted: #8a978e;
+  --ink-muted: #65766a;
   --leaf: #6b8f71;
   --leaf-deep: #4f7356;
   --leaf-soft: #e4efe6;
   --blush: #e8c4c0;
-  --blush-deep: #b76e6a;
+  --blush-deep: #94534f;
   --mist: #f3f6f2;
   --line: #d5dfd6;
   --sky-wash: #dce9e4;
@@ -69,7 +69,8 @@
   --card-foreground: #2f3d34;
   --popover: #ffffff;
   --popover-foreground: #2f3d34;
-  --primary: #6b8f71;
+  --primary: var(--leaf-deep);
+  --primary-hover: #3e5e44;
   --primary-foreground: #ffffff;
   --secondary: #e4efe6;
   --secondary-foreground: #2f3d34;
@@ -77,7 +78,7 @@
   --muted-foreground: #5a6b60;
   --accent: #f6ecea;
   --accent-foreground: #2f3d34;
-  --destructive: #b76e6a;
+  --destructive: #9b4240;
   --border: #d5dfd6;
   --input: #d5dfd6;
   --ring: #6b8f71;
@@ -95,7 +96,10 @@
   --sidebar-accent-foreground: #2f3d34;
   --sidebar-border: #d5dfd6;
   --sidebar-ring: #6b8f71;
-  --ns-muted: #4d4d4d;
+  --ns-muted: var(--ink-soft);
+  --surface: rgba(255, 255, 255, 0.76);
+  --panel-radius: 1.5rem;
+  --panel-shadow: 0 16px 48px -32px rgba(47, 61, 52, 0.3);
 }
 
 .dark {
@@ -111,6 +115,17 @@
   }
   html {
     @apply font-sans;
+    scroll-padding-block: 2rem;
+  }
+  :where(button, a, input, textarea):focus-visible {
+    outline: 2px solid var(--leaf-deep);
+    outline-offset: 4px;
+  }
+  :where(button, a) {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :where(button:not(:disabled), a) {
+    touch-action: manipulation;
   }
 }
 
@@ -232,9 +247,53 @@ html[lang="gu"] body *:not(canvas) {
   animation: fade 0.35s ease-out both;
 }
 
-.eyebrow {
-  letter-spacing: 0.28em;
-  opacity: 0.9;
+/* Shared invitation and host UI: one width, spacing, type, and surface scale. */
+@layer components {
+  .page-container {
+    @apply relative z-10 mx-auto w-full max-w-3xl flex-1 px-5 py-10 sm:px-6 sm:py-16;
+  }
+  .content-width {
+    @apply mx-auto w-full max-w-2xl;
+  }
+  .section-space {
+    @apply mt-12 sm:mt-16;
+  }
+  .surface-card {
+    border: 1px solid var(--line);
+    border-radius: var(--panel-radius);
+    background: var(--surface);
+    box-shadow: var(--panel-shadow);
+  }
+  .panel-padding {
+    @apply p-6 sm:p-8;
+  }
+  .section-heading {
+    @apply font-display text-[1.75rem] leading-snug text-foreground sm:text-[2rem];
+    text-wrap: balance;
+  }
+  .section-copy {
+    @apply text-base leading-relaxed text-muted-foreground;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase text-primary;
+    letter-spacing: 0.18em;
+    line-height: 1.6;
+  }
+  .icon-medallion {
+    @apply flex size-14 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-primary;
+  }
+  .form-error {
+    @apply rounded-xl border border-destructive/20 bg-accent px-4 py-3 text-sm leading-relaxed text-destructive;
+  }
+  .status-note {
+    @apply rounded-xl border border-border bg-secondary px-4 py-3 text-sm leading-relaxed text-muted-foreground;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Give Gujarati marks and conjuncts enough room at every display size. */
+html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
+  line-height: 1.35;
 }
 
 .brand-name {
@@ -374,7 +433,6 @@ html[lang="gu"] body *:not(canvas) {
   background:
     radial-gradient(ellipse 70% 55% at 50% 35%, rgba(255, 255, 255, 0.72), transparent 70%),
     linear-gradient(165deg, #f7f3ef 0%, #e8f0ea 48%, #f3e7e5 100%);
-  cursor: pointer;
   animation: invite-gate-in 0.55s ease-out both;
 }
 
@@ -393,6 +451,7 @@ html[lang="gu"] body *:not(canvas) {
 }
 
 .invite-content.is-sealed {
+  display: none;
   visibility: hidden;
   pointer-events: none;
   user-select: none;
@@ -546,13 +605,14 @@ html[lang="gu"] body *:not(canvas) {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  height: 2.5rem;
-  padding: 0 0.85rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--line);
+  background: var(--surface);
   color: var(--ink);
-  font-size: 0.82rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
   font-weight: 600;
   box-shadow: 0 8px 20px -16px rgba(47, 61, 52, 0.45);
   transition: background 0.2s ease, border-color 0.2s ease;
@@ -584,4 +644,14 @@ html[lang="gu"] body *:not(canvas) {
   .flip-digit-value {
     animation: none !important;
   }
+}
+
+/* Canvas digits have readable HTML until the effect is ready. */
+[data-vapor-ready="true"] [data-vc-value] { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  [data-vapor-ready="true"] [data-vc-value] { opacity: 1; }
+}
+.music-toggle {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1rem, env(safe-area-inset-right));
 }

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function HostPage() {
   return (
     <div className="shower-shell flex flex-1 flex-col">
-      <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-12 sm:px-6 sm:py-16">
+      <main className="page-container">
         <header className="mb-10 text-center">
           <p className="font-display text-4xl text-[var(--ink)] sm:text-5xl">
             {event.brand}
@@ -20,7 +20,7 @@ export default function HostPage() {
         </header>
         <HostDashboard />
         <p className="mt-10 text-center text-sm text-[var(--ink-muted)]">
-          <Link href="/" className="underline-offset-4 hover:underline">
+          <Link href="/" className="inline-flex min-h-11 items-center rounded-lg px-3 text-primary underline-offset-4 hover:underline">
             ← Back to RSVP link
           </Link>
         </p>

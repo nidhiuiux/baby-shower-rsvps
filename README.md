@@ -22,7 +22,7 @@ Edit `src/lib/event.ts`:
 - **title** — e.g. "Baby Shower"
 - **tagline** — short welcome line
 - **date** / **location** — event details
-- **hostPin** — PIN to view responses (default: `shower`)
+- **hostPin** — fallback PIN only (default: `shower`). The repository is public, so set a private `HOST_PIN` environment variable in your deploy settings (and `.env.local`) instead
 - **notifyEmail** — where RSVP confirmation emails are sent
 
 ## Email notifications
@@ -53,7 +53,7 @@ set `NOTIFY_FROM_EMAIL`.
 
 ## How it works
 
-1. **Guest link (share this):** `/` — simple RSVP (name, yes/no, optional note). No guest-count field.
+1. **Guest link (share this):** `/` — RSVP form with name, attendance, guest count when attending, and an optional note.
 2. **Host link (keep private):** `/host` — enter your PIN to view responses, add people manually, or remove entries
 3. Each RSVP is saved and an email notification is sent to you
 4. Responses are also stored in `data/rsvps.json` on the server
@@ -71,7 +71,7 @@ Temporary Cloudflare tunnel links expire. For lasting guest + host URLs:
 2. Sign up / log in to Vercel (free) and claim the deployment.
 3. Your permanent URLs will be:
    - Guest RSVP: `https://YOUR-PROJECT.vercel.app`
-   - Host: `https://YOUR-PROJECT.vercel.app/host` (PIN in `src/lib/event.ts`)
+   - Host: `https://YOUR-PROJECT.vercel.app/host` (PIN from the `HOST_PIN` environment variable)
 
 RSVPs on Vercel are stored via Resend email records (same inbox as notifications), so they persist across deploys when `RESEND_API_KEY` is set.
 
@@ -82,3 +82,14 @@ RSVPs on Vercel are stored via Resend email records (same inbox as notifications
 | `npm run dev` | Start the development server |
 | `npm run build` | Production build |
 | `npm start` | Run the production build |
+
+## UI conventions
+
+Shared colors, panel styles, type, and section spacing live in `src/app/globals.css`.
+Use `surface-card`, `panel-padding`, `content-width`, `section-space`,
+`section-heading`, and `section-copy` for new sections. Use the shared `Button`,
+`Input`, `Textarea`, `Label`, and `AttendanceChoice` components for forms.
+Keep guest-facing strings in both language entries in `src/lib/copy.ts`.
+
+See [UI_AUDIT.md](UI_AUDIT.md) for the normalization, verification scope, and
+separate backend findings.

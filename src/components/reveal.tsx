@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import type { ReactNode } from "react";
 
 /** Gentle fade-and-rise as a section scrolls into view; static for reduced motion */

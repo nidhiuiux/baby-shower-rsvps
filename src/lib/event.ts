@@ -40,7 +40,7 @@ export const event = {
   notifyEmail: "nsavaliya93@gmail.com",
   /** Opening blessing, shown with Kabir Saheb */
   blessing: {
-    eyebrow: "With Saheb's blessings",
+    eyebrow: "With Kabir Saheb's blessings",
     title: "साहेब बंदगी साहेब",
     /** Latin spelling shown beneath the Hindi greeting */
     transliteration: "Saheb Bandagi Saheb",
