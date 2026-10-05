@@ -40,6 +40,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-ns-muted: var(--ns-muted);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -94,6 +95,11 @@
   --sidebar-accent-foreground: #2f3d34;
   --sidebar-border: #d5dfd6;
   --sidebar-ring: #6b8f71;
+  --ns-muted: #4d4d4d;
+}
+
+.dark {
+  --ns-muted: #8f8f8f;
 }
 
 @layer base {
@@ -461,6 +467,116 @@
   }
 }
 
+.flip-digit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.15rem;
+  height: 3.7rem;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(228, 239, 230, 0.78));
+  box-shadow: 0 12px 28px -18px rgba(47, 61, 52, 0.5);
+}
+
+.flip-digit::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 1px;
+  background: rgba(107, 143, 113, 0.22);
+}
+
+.flip-digit-value {
+  font-size: 1.55rem;
+  line-height: 1;
+  color: var(--ink);
+  animation: flip-in 0.35s ease-out both;
+}
+
+.flip-colon {
+  margin-top: 0.85rem;
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--blush-deep);
+  opacity: 0.7;
+}
+
+@media (min-width: 640px) {
+  .flip-digit {
+    width: 3.7rem;
+    height: 4.35rem;
+  }
+  .flip-digit-value {
+    font-size: 1.9rem;
+  }
+  .flip-colon {
+    margin-top: 1.05rem;
+    font-size: 1.6rem;
+  }
+}
+
+@keyframes flip-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.twinkle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.invite-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.5rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px -16px rgba(47, 61, 52, 0.45);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.invite-chip:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--leaf);
+}
+
+.invite-chip svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--leaf-deep);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .petal,
   .doodle,
@@ -472,7 +588,8 @@
   .invite-gate,
   .invite-gate-glow,
   .invite-gate-icon,
-  .invite-content.is-open {
+  .invite-content.is-open,
+  .flip-digit-value {
     animation: none !important;
   }
 }

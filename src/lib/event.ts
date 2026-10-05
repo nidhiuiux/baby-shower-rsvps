@@ -10,6 +10,10 @@ export const event = {
   title: "Baby Shower",
   tagline: "We'd love to celebrate with you. Please let us know if you can make it.",
   date: "Sunday, October 25 · 10:30 AM",
+  /** ISO start used by the countdown and calendar file */
+  startsAt: "2026-10-25T10:30:00-04:00",
+  /** ISO end used by the calendar file (about three hours) */
+  endsAt: "2026-10-25T13:30:00-04:00",
   location: "124 Crain Road, Paramus, NJ 07652",
   /** Simple PIN to view RSVP responses at /host */
   hostPin: "shower",
