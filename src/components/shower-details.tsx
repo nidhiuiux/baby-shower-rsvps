@@ -1,5 +1,6 @@
 "use client";
 
+import { DirectionsMenu } from "@/components/directions-menu";
 import { FeatureCard } from "@/components/ui/grid-feature-cards";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
@@ -29,6 +30,7 @@ export function ShowerDetails() {
           <a href={mapsHref} target="_blank" rel="noreferrer" className="mt-1 inline-flex min-h-11 items-center rounded-sm text-primary underline decoration-primary/40 underline-offset-4 hover:decoration-primary">
             Paramus, NJ 07652
           </a>
+          <DirectionsMenu />
         </>
       ),
     },
