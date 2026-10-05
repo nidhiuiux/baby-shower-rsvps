@@ -130,7 +130,7 @@ const gu: Copy = {
   ticketStub: "Admit one",
   ticketDates: "25 ઓક્ટોબર · સવારે 10:30",
 
-  blessingEyebrow: "સાહેબના આશીર્વાદ સાથે",
+  blessingEyebrow: "કબીર સાહેબના આશીર્વાદ સાથે",
   blessingMessage: "અમારા આનંદમાં સહભાગી થવા માટે અમે તમને હૃદયપૂર્વક આવકારીએ છીએ.",
   kabirAlt: "કમળના ફૂલો વચ્ચે બેઠેલા કબીર સાહેબનું ચિત્ર",
 
