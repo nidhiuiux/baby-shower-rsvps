@@ -1,12 +1,10 @@
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import React from "react";
 
 type FeatureType = {
   title: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   description: React.ReactNode;
-  imageSrc?: string;
 };
 
 type FeatureCardPorps = React.ComponentProps<"div"> & {
@@ -22,14 +20,10 @@ export function FeatureCard({ feature, className, ...props }: FeatureCardPorps) 
           <GridPattern width={20} height={20} x="-12" y="4" squares={p} className="fill-foreground/5 stroke-foreground/25 absolute inset-0 h-full w-full mix-blend-overlay" />
         </div>
       </div>
-      {feature.imageSrc ? (
-        <span className="relative z-20 flex size-20 items-center justify-center rounded-full border border-white/80 bg-white/80 shadow-[inset_0_0_0_7px_var(--leaf-soft)]">
-          <Image src={feature.imageSrc} alt="" width={56} height={56} unoptimized className="size-12 object-contain" />
-        </span>
-      ) : (
-        <feature.icon className="text-foreground/75 relative z-20 size-6" strokeWidth={1} aria-hidden />
-      )}
-      <h3 className={cn("font-display relative z-20 text-sm text-[var(--ink)] md:text-base", feature.imageSrc ? "mt-5" : "mt-10")}>{feature.title}</h3>
+      <span className="relative z-20 flex size-16 items-center justify-center rounded-full border border-white/80 bg-white/80 text-[var(--blush-deep)] shadow-[inset_0_0_0_6px_var(--leaf-soft)]">
+        <feature.icon className="size-6" strokeWidth={1.5} aria-hidden />
+      </span>
+      <h3 className={cn("font-display relative z-20 text-sm text-[var(--ink)] md:text-base", "mt-5")}>{feature.title}</h3>
       <div className="text-muted-foreground relative z-20 mt-2 text-sm leading-relaxed">{feature.description}</div>
     </div>
   );

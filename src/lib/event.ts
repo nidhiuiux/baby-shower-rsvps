@@ -19,4 +19,20 @@ export const event = {
   hostPin: "shower",
   /** Email that receives a notification for every RSVP */
   notifyEmail: "nsavaliya93@gmail.com",
+  /** Opening blessing, shown with Kabir Saheb */
+  blessing: {
+    eyebrow: "With Saheb's blessings",
+    title: "साहेब बंदगी साहेब",
+    /** Latin spelling shown beneath the Hindi greeting */
+    transliteration: "Saheb Bandagi Saheb",
+    message: "With hearts full of gratitude, we warmly welcome you to share in our joy.",
+  },
+  /** The ceremony itself, shown with the mother-to-be */
+  shrimant: {
+    eyebrow: "A blessing for the little one",
+    title: "Shrimant Sanskar",
+    line: "A little one is on the way",
+    message:
+      "Join us for a gentle gathering of prayers, blessings and love as we welcome our baby. Your presence means the world to us.",
+  },
 } as const;
