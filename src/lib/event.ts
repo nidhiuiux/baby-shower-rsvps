@@ -20,6 +20,8 @@ export const event = {
    * Leave empty until you have it — the page shows "stay tuned" instead.
    */
   liveStreamUrl: "",
+  /** Public address of the site, used for social-preview links. Update if you add a custom domain. */
+  siteUrl: "https://nidhi-hardik-baby-shower.vercel.app",
   /** Simple PIN to view RSVP responses at /host */
   hostPin: "shower",
   /** Email that receives a notification for every RSVP */
