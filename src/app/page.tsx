@@ -66,8 +66,11 @@ export default function Home() {
             <h2 className="mb-1 text-center font-display text-2xl text-[var(--ink)] sm:text-[1.75rem]">
               Kindly RSVP
             </h2>
-            <p className="mb-6 text-center text-sm text-[var(--ink-muted)]">
+            <p className="text-center text-sm text-[var(--ink-muted)]">
               We can&apos;t wait to see you ♡
+            </p>
+            <p className="mb-6 mt-3 text-center text-sm font-semibold text-[var(--blush-deep)]">
+              Please confirm by {event.rsvpBy}
             </p>
             <RsvpForm />
           </section>

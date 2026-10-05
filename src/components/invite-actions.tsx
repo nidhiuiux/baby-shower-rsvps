@@ -48,7 +48,7 @@ function shareText() {
     `🕥 : ${share.time}`,
     `📍 : ${event.location}`,
     "",
-    share.rsvpLine,
+    `RSVP by ${event.rsvpBy} 👇`,
     window.location.origin,
   ].join("\n");
 }

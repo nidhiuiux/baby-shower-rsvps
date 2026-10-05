@@ -15,6 +15,8 @@ export const event = {
   /** ISO end used by the calendar file (about three hours) */
   endsAt: "2026-10-25T13:30:00-04:00",
   location: "124 Crain Road, Paramus, NJ 07652",
+  /** Reply-by date shown above the RSVP form and in the shared message */
+  rsvpBy: "Saturday, October 10th",
   /** The message guests send when they share the invitation (WhatsApp, Messages, etc.) */
   share: {
     greeting: "साहेब बंदगी साहेब 🙏",
@@ -24,7 +26,6 @@ export const event = {
       "Come share in the love, the blessings and the joy of this beautiful new chapter. Your presence would mean the world. 🤍",
     date: "Sunday, October 25th, 2026",
     time: "10:30 AM onwards",
-    rsvpLine: "RSVP here 👇",
   },
   /**
    * Live-stream link for guests who can't attend in person.
