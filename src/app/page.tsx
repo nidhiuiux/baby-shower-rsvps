@@ -6,7 +6,7 @@ import { KrishnaOnMoon } from "@/components/devotional-art";
 import { CelebrateScroll } from "@/components/celebrate-scroll";
 import { Countdown } from "@/components/countdown";
 import { InvitationReveal } from "@/components/invitation-reveal";
-import { FloatingLanguageToggle, HtmlLangSync, LanguageSwitch } from "@/components/language-switch";
+import { HtmlLangSync, LanguageSwitch } from "@/components/language-switch";
 import { InviteActions } from "@/components/invite-actions";
 import { LiveStream } from "@/components/live-stream";
 import { RsvpForm } from "@/components/rsvp-form";
@@ -21,7 +21,6 @@ export default function Home() {
     <InvitationReveal>
       <div className="shower-shell flex flex-1 flex-col">
         <HtmlLangSync />
-        <FloatingLanguageToggle />
         <TwinklingStars />
         <span className="petal petal-1" aria-hidden />
         <span className="petal petal-2" aria-hidden />
@@ -29,7 +28,7 @@ export default function Home() {
         <FloatingDoodles />
 
         <main className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-12 sm:px-6 sm:py-16">
-          <div className="mb-8 mt-6 flex justify-center">
+          <div className="mb-6 flex justify-center">
             <LanguageSwitch />
           </div>
 

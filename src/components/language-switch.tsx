@@ -52,26 +52,6 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
   );
 }
 
-/** Always-visible shortcut that flips the language from anywhere on the page */
-export function FloatingLanguageToggle() {
-  const { lang } = useCopy();
-  const next: Lang = lang === "en" ? "gu" : "en";
-  const nextOption = options.find((option) => option.value === next)!;
-
-  return (
-    <button
-      type="button"
-      lang={nextOption.lang}
-      onClick={() => setLang(next)}
-      aria-label={`${PROMPT}: ${nextOption.label}`}
-      className="fixed top-3 right-3 z-50 inline-flex h-10 items-center gap-1.5 rounded-full border border-white/80 bg-white/80 px-3.5 text-sm font-semibold text-[var(--leaf-deep)] shadow-[0_10px_28px_-12px_rgba(47,61,52,0.45)] backdrop-blur-md transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50 sm:top-4 sm:right-4"
-    >
-      <Languages className="size-4" aria-hidden />
-      {nextOption.label}
-    </button>
-  );
-}
-
 /** Keeps <html lang> in step with the chosen language for screen readers and browsers */
 export function HtmlLangSync() {
   const { t } = useCopy();
