@@ -1,4 +1,6 @@
-import { BabyDoodles, FloatingDoodles } from "@/components/baby-doodles";
+import { SahibBandgi, ShrimantSanskar, WithLove } from "@/components/blessings";
+import { FloatingDoodles } from "@/components/baby-doodles";
+import { KrishnaOnMoon } from "@/components/devotional-art";
 import { CelebrateScroll } from "@/components/celebrate-scroll";
 import { Countdown } from "@/components/countdown";
 import { InvitationReveal } from "@/components/invitation-reveal";
@@ -21,7 +23,12 @@ export default function Home() {
 
         <main className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-12 sm:px-6 sm:py-16">
           <header className="animate-rise text-center">
-            <BabyDoodles />
+            <KrishnaOnMoon
+              priority
+              alt=""
+              sizes="(min-width: 640px) 256px, 208px"
+              className="art-float mx-auto h-auto w-52 sm:w-64"
+            />
             <p className="eyebrow mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
               {event.eyebrow}
             </p>
@@ -38,6 +45,9 @@ export default function Home() {
               <ShowerTicket />
             </div>
           </header>
+
+          <SahibBandgi />
+          <ShrimantSanskar />
 
           <CelebrateScroll />
 
@@ -60,6 +70,8 @@ export default function Home() {
             </p>
             <RsvpForm />
           </section>
+
+          <WithLove />
         </main>
       </div>
     </InvitationReveal>

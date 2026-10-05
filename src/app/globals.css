@@ -248,76 +248,59 @@
   line-height: 1;
 }
 
-.doodle-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0.65rem;
-  flex-wrap: nowrap;
+.art-float {
+  animation: art-float 7s ease-in-out infinite;
 }
 
-@media (min-width: 480px) {
-  .doodle-row {
-    gap: 1rem;
-  }
+.art-float-delay {
+  animation-delay: -3.5s;
 }
 
-.doodle {
-  flex-shrink: 0;
-  height: auto;
-  opacity: 0.9;
-  animation: doodle-bob 5.5s ease-in-out infinite;
-  filter: drop-shadow(0 4px 8px rgba(47, 61, 52, 0.06));
-}
-
-.doodle-sm {
-  width: 2.35rem;
-}
-
-.doodle-md {
-  width: 3.1rem;
-}
-
-.doodle-lg {
-  width: 2.85rem;
-}
-
-@media (min-width: 480px) {
-  .doodle-sm {
-    width: 2.75rem;
-  }
-  .doodle-md {
-    width: 3.55rem;
-  }
-  .doodle-lg {
-    width: 3.25rem;
-  }
-}
-
-.doodle-delay-0 {
-  animation-delay: 0s;
-}
-.doodle-delay-1 {
-  animation-delay: -0.9s;
-}
-.doodle-delay-2 {
-  animation-delay: -1.8s;
-}
-.doodle-delay-3 {
-  animation-delay: -2.7s;
-}
-.doodle-delay-4 {
-  animation-delay: -3.6s;
-}
-
-@keyframes doodle-bob {
+@keyframes art-float {
   0%,
   100% {
-    transform: translateY(0) rotate(-2deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px) rotate(2.5deg);
+    transform: translateY(-6px);
   }
+}
+
+.art-halo {
+  position: relative;
+  isolation: isolate;
+}
+
+.art-halo::before {
+  content: "";
+  position: absolute;
+  inset: 4% -8% 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(232, 196, 192, 0.5), rgba(220, 233, 228, 0.35) 55%, transparent 72%);
+}
+
+.lotus-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.lotus-divider svg {
+  width: 2.6rem;
+  height: auto;
+}
+
+.lotus-divider span {
+  height: 1px;
+  width: 3.5rem;
+  background: linear-gradient(90deg, transparent, var(--blush-deep));
+  opacity: 0.45;
+}
+
+.lotus-divider span:last-child {
+  transform: scaleX(-1);
 }
 
 .floating-doodles {
@@ -579,7 +562,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .petal,
-  .doodle,
+  .art-float,
   .float-doodle,
   .animate-rise,
   .animate-rise-delay,

@@ -10,7 +10,6 @@ const details = [
   {
     title: "When",
     icon: Calendar,
-    imageSrc: "/doodles/star.svg",
     description: (
       <>
         <p className="font-display text-xl leading-tight text-[var(--ink)]">Sunday, October 25</p>
@@ -21,7 +20,6 @@ const details = [
   {
     title: "Where",
     icon: MapPin,
-    imageSrc: "/doodles/moon.svg",
     description: (
       <>
         <p className="font-display text-xl leading-tight text-[var(--ink)]">124 Crain Road</p>
