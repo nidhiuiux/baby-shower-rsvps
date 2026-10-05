@@ -1,5 +1,5 @@
 /**
- * Edit this file to personalize your baby shower invitation.
+ * Edit this file to personalize your invitation.
  * Share the home page link as your RSVP link.
  */
 export const event = {
@@ -7,7 +7,7 @@ export const event = {
   eyebrow: "Parents-to-be",
   /** Shown large on the page — usually the parents' names */
   brand: "Nidhi & Hardik",
-  title: "Baby Shower",
+  title: "Shrimant Vidhi",
   tagline: "We'd love to celebrate with you. Please let us know if you can make it.",
   date: "Sunday, October 25 · 10:30 AM",
   /** ISO start used by the countdown and calendar file */
@@ -21,7 +21,7 @@ export const event = {
   share: {
     greeting: "साहेब बंदगी साहेब 🙏",
     intro:
-      "Nidhi & Hardik are welcoming a little blessing, and we would be so happy to have you with us for our Shrimant Sanskar & Baby Shower.",
+      "Nidhi & Hardik are welcoming a little blessing, and we would be so happy to have you with us for our Shrimant Vidhi.",
     closing:
       "Come share in the love, the blessings and the joy of this beautiful new chapter. Your presence would mean the world. 🤍",
     date: "Sunday, October 25th, 2026",

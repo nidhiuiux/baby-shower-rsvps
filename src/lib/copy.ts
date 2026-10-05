@@ -36,7 +36,7 @@ const en = {
   celebrateText: "WITH LOVE",
 
   countdownLabel: "Until we celebrate",
-  countdownAria: "Time until the baby shower",
+  countdownAria: "Time until the Shrimant Vidhi",
   countdownDone: "The shower is here",
   countdownUnits: ["DAYS", "HOURS", "MINUTES", "SECONDS"] as readonly string[],
 
@@ -90,7 +90,7 @@ const en = {
 
   calendarTitle: `${event.title} — ${event.brand}`,
   calendarDescription: (link: string) => `${event.tagline} RSVP at ${link}`,
-  shareTitle: `${event.brand} | Shrimant Sanskar & ${event.title}`,
+  shareTitle: `${event.brand} | ${event.title}`,
   /** The message sent from WhatsApp, the share sheet, etc. `link` is the page address. */
   shareMessage: (link: string) =>
     [
@@ -123,7 +123,7 @@ const gu: Copy = {
 
   eyebrow: "ભાવિ માતા-પિતા",
   brand: "નિધિ અને હાર્દિક",
-  title: "બેબી શાવર",
+  title: "શ્રીમંત વિધિ",
   tagline:
     "તમારી સાથે આ ખુશી ઉજવવાની અમને ખૂબ મજા આવશે. તમે આવી શકશો કે નહીં, તે કૃપા કરીને અમને જણાવજો.",
   ticketStub: "એક વ્યક્તિ માટે",
@@ -143,7 +143,7 @@ const gu: Copy = {
   celebrateText: "પ્રેમ સહ",
 
   countdownLabel: "ઉજવણીને હવે બાકી",
-  countdownAria: "બેબી શાવર સુધીનો બાકી સમય",
+  countdownAria: "શ્રીમંત વિધિ સુધીનો બાકી સમય",
   countdownDone: "આજે ઉજવણીનો દિવસ છે",
   countdownUnits: ["દિવસ", "કલાક", "મિનિટ", "સેકન્ડ"],
 
@@ -195,15 +195,15 @@ const gu: Copy = {
 
   withLove: "પ્રેમ સહ,",
 
-  calendarTitle: "બેબી શાવર — નિધિ અને હાર્દિક",
+  calendarTitle: "શ્રીમંત વિધિ — નિધિ અને હાર્દિક",
   calendarDescription: (link: string) =>
     `તમારી સાથે આ ખુશી ઉજવવાની અમને ખૂબ મજા આવશે. RSVP માટે: ${link}`,
-  shareTitle: "નિધિ અને હાર્દિક | શ્રીમંત સંસ્કાર અને બેબી શાવર",
+  shareTitle: "નિધિ અને હાર્દિક | શ્રીમંત વિધિ",
   shareMessage: (link: string) =>
     [
       event.share.greeting,
       "",
-      "નિધિ અને હાર્દિકના ઘરે એક નાનકડા મહેમાનના આગમનની ખુશી છે, અને અમારા શ્રીમંત સંસ્કાર તથા બેબી શાવરમાં તમે અમારી સાથે જોડાઓ એવી અમારી દિલથી ઇચ્છા છે.",
+      "નિધિ અને હાર્દિકના ઘરે એક નાનકડા મહેમાનના આગમનની ખુશી છે, અને અમારા શ્રીમંત વિધિમાં તમે અમારી સાથે જોડાઓ એવી અમારી દિલથી ઇચ્છા છે.",
       "",
       "આ નવા અધ્યાયમાં પ્રેમ, આશીર્વાદ અને આનંદ વહેંચવા અમારી સાથે પધારો. તમારી હાજરી અમારા માટે ખૂબ મહત્વની છે. 🤍",
       "",

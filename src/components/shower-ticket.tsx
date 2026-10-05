@@ -32,7 +32,7 @@ type ShowerTicketProps = {
 export function ShowerTicket({
   name = "Nidhi & Hardik",
   presenter = "Parents-to-be",
-  eventTitle = "Baby Shower",
+  eventTitle = "Shrimant Vidhi",
   stubText = "Admit one",
   watermark = "2026",
   dates = "Oct 25 · 10:30 AM",
