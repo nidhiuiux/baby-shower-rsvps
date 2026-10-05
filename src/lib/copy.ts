@@ -36,7 +36,7 @@ const en = {
   celebrateText: "WITH LOVE",
 
   countdownLabel: "Until we celebrate",
-  countdownAria: "Time until the Shrimant Vidhi",
+  countdownAria: "Time until the baby shower",
   countdownDone: "The shower is here",
   countdownUnits: ["DAYS", "HOURS", "MINUTES", "SECONDS"] as readonly string[],
 
@@ -90,7 +90,7 @@ const en = {
 
   calendarTitle: `${event.title} — ${event.brand}`,
   calendarDescription: (link: string) => `${event.tagline} RSVP at ${link}`,
-  shareTitle: `${event.brand} | ${event.title}`,
+  shareTitle: `${event.brand} | Shrimant Sanskar & ${event.title}`,
   /** The message sent from WhatsApp, the share sheet, etc. `link` is the page address. */
   shareMessage: (link: string) =>
     [

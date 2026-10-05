@@ -47,9 +47,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = `${event.brand} | ${event.title} RSVP`;
+const title = `${event.brand} | Shrimant Sanskar & ${event.title} RSVP`;
 const description =
-  "Join us for Nidhi & Hardik’s Shrimant Vidhi celebration on October 25, 2026 in Paramus, NJ. View details and RSVP.";
+  "Join us for Nidhi & Hardik’s Shrimant Sanskar and baby shower celebration on October 25, 2026 in Paramus, NJ. View details and RSVP.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(event.siteUrl),
