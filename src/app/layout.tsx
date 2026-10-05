@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist_Mono, Noto_Serif_Devanagari, Nunito } from "next/font/google";
 import { event } from "@/lib/event";
 import "./globals.css";
@@ -24,9 +24,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const title = `${event.brand} | Shrimant Sanskar & ${event.title} RSVP`;
+const description =
+  "Join us for Nidhi & Hardik’s Shrimant Sanskar and baby shower celebration on October 25, 2026 in Paramus, NJ. View details and RSVP.";
+
 export const metadata: Metadata = {
-  title: `${event.title} RSVP · ${event.brand}`,
-  description: `RSVP for ${event.brand}'s baby shower. ${event.tagline}`,
+  metadataBase: new URL(event.siteUrl),
+  title,
+  description,
+  applicationName: `${event.brand} ${event.title}`,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: `${event.brand} ${event.title}`,
+    title,
+    description,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f3f6f2",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

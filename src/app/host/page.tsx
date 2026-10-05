@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HostDashboard } from "@/components/host-dashboard";
 import { event } from "@/lib/event";
+
+export const metadata: Metadata = {
+  title: `RSVP responses | ${event.brand}`,
+  robots: { index: false, follow: false },
+};
 
 export default function HostPage() {
   return (
