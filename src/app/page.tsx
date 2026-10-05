@@ -71,13 +71,11 @@ export default function Home() {
             </p>
             <RsvpForm />
           </section>
-        </main>
 
-        <LiveStream />
+          <LiveStream />
 
-        <div className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-16 sm:px-6">
           <WithLove />
-        </div>
+        </main>
       </div>
     </InvitationReveal>
   );
