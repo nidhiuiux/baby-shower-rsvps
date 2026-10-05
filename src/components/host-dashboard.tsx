@@ -49,10 +49,10 @@ export function HostDashboard() {
   const [manualNote, setManualNote] = useState("");
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
-  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const summary = rsvps ? buildSummary(rsvps) : null;
-  const busy = savingManual || removingId !== null;
+  // Only adding locks the form. Removing is instant, so rows never wait on the server.
+  const busy = savingManual;
   const [announcement, setAnnouncement] = useState("");
 
   async function loadResponses(e: React.FormEvent) {
@@ -60,7 +60,10 @@ export function HostDashboard() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`/api/rsvp?pin=${encodeURIComponent(pin)}`);
+      const res = await fetch("/api/rsvp", {
+        headers: { "x-host-pin": pin },
+        cache: "no-store",
+      });
       const data = (await res.json()) as {
         error?: string;
         rsvps?: Rsvp[];
@@ -141,10 +144,26 @@ export function HostDashboard() {
   }
 
   async function removeRsvp(id: string) {
-    if (busy) return;
+    const index = rsvps?.findIndex((r) => r.id === id) ?? -1;
+    const removed = index >= 0 ? rsvps?.[index] : undefined;
+    if (!removed) return;
+
+    // The row disappears at once. If the server refuses, only this row comes back.
     setError("");
-    setAnnouncement("");
-    setRemovingId(id);
+    setRsvps((current) => current?.filter((r) => r.id !== id) ?? null);
+    setAnnouncement(`Removed ${removed.name}.`);
+
+    const restore = (message: string) => {
+      setRsvps((current) => {
+        if (!current || current.some((r) => r.id === id)) return current;
+        const next = current.slice();
+        next.splice(Math.min(index, next.length), 0, removed);
+        return next;
+      });
+      setAnnouncement("");
+      setError(message);
+    };
+
     try {
       const res = await fetch("/api/rsvp", {
         method: "DELETE",
@@ -152,16 +171,9 @@ export function HostDashboard() {
         body: JSON.stringify({ id, pin }),
       });
       const data = (await res.json()) as { error?: string };
-      if (!res.ok) {
-        setError(data.error || "Could not remove RSVP.");
-        return;
-      }
-      setRsvps((current) => current?.filter((r) => r.id !== id) ?? null);
-      setAnnouncement("RSVP removed.");
+      if (!res.ok) restore(data.error || `Could not remove ${removed.name}.`);
     } catch {
-      setError("Could not remove RSVP. Please try again.");
-    } finally {
-      setRemovingId(null);
+      restore(`Could not remove ${removed.name}. Please try again.`);
     }
   }
 
@@ -350,11 +362,10 @@ export function HostDashboard() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={busy}
                   aria-label={`Remove RSVP for ${rsvp.name}`}
-                  onClick={() => removeRsvp(rsvp.id)}
+                  onClick={() => void removeRsvp(rsvp.id)}
                 >
-                  {removingId === rsvp.id ? "Removing…" : "Remove"}
+                  Remove
                 </Button>
               </div>
             </li>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { event } from "@/lib/event";
+import { isHostPin } from "@/lib/host-auth";
 import { sendRsvpNotification } from "@/lib/notify";
 import {
   addRsvp,
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   const { name, attending, guests, note, pin } = body as Record<string, unknown>;
 
   const isManual = typeof pin === "string" && pin.length > 0;
-  if (isManual && pin !== event.hostPin) {
+  if (isManual && !isHostPin(pin)) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
 
@@ -88,8 +89,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const pin = new URL(request.url).searchParams.get("pin");
-  if (pin !== event.hostPin) {
+  // The PIN travels in a header, not the address, so it stays out of logs and browser history.
+  if (!isHostPin(request.headers.get("x-host-pin"))) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
 
@@ -126,7 +127,7 @@ export async function DELETE(request: Request) {
   }
 
   const { id, pin } = body as Record<string, unknown>;
-  if (pin !== event.hostPin) {
+  if (!isHostPin(pin)) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
   if (typeof id !== "string" || !id) {

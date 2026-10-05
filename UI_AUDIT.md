@@ -39,4 +39,10 @@ These existing concerns remain outside the UI normalization:
 - The local JSON store reads/modifies/writes without an atomic transaction. Concurrent writes can overwrite each other, and malformed JSON is treated as an empty store.
 - With `RSVP_STORE=resend` outside Vercel, a failed email can still return success because the API only checks `VERCEL` when deciding whether notification failure means storage failure. Resend listing also stops after ten pages, so it can omit older responses.
 
+## Follow-up review
+
+- Host removal is instant again (rows disappear immediately; if the server refuses, only that row returns with an error). The audit pass had made it wait for the server, which brought back the "feels stuck" problem.
+- The "Tap to open" screen opens when tapped anywhere again, except on the language switch.
+- Host access: the PIN can now come from the `HOST_PIN` environment variable (the repository is public, so the PIN in `src/lib/event.ts` is only a fallback), is compared in constant time, and is sent in a request header instead of the address.
+
 No deployment or changes to `main` are part of this work.

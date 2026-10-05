@@ -95,11 +95,16 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
     <div className="relative flex min-h-full flex-1 flex-col">
       <HtmlLangSync />
       {!opened ? (
-        <div className="invite-gate fixed inset-0 z-[60] flex min-h-dvh flex-col items-center justify-center gap-8 overflow-y-auto px-5 py-10 text-center">
+        <div
+          // Tapping anywhere opens the invitation; the language switch is the only exception.
+          onClick={(e) => {
+            if (!(e.target as HTMLElement).closest('[role="group"]')) void openInvitation();
+          }}
+          className="invite-gate fixed inset-0 z-[60] flex min-h-dvh cursor-pointer flex-col items-center justify-center gap-8 overflow-y-auto px-5 py-10 text-center"
+        >
           <span className="invite-gate-glow" aria-hidden />
           <button
             type="button"
-            onClick={() => void openInvitation()}
             aria-label={t.gateTitle}
             aria-describedby="gate-description"
             className="relative flex w-full max-w-sm cursor-pointer flex-col items-center gap-5 rounded-3xl px-4 py-6 transition-colors hover:bg-white/30"

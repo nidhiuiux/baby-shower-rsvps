@@ -22,7 +22,7 @@ Edit `src/lib/event.ts`:
 - **title** — e.g. "Baby Shower"
 - **tagline** — short welcome line
 - **date** / **location** — event details
-- **hostPin** — PIN to view responses (default: `shower`)
+- **hostPin** — fallback PIN only (default: `shower`). The repository is public, so set a private `HOST_PIN` environment variable in your deploy settings (and `.env.local`) instead
 - **notifyEmail** — where RSVP confirmation emails are sent
 
 ## Email notifications
@@ -71,7 +71,7 @@ Temporary Cloudflare tunnel links expire. For lasting guest + host URLs:
 2. Sign up / log in to Vercel (free) and claim the deployment.
 3. Your permanent URLs will be:
    - Guest RSVP: `https://YOUR-PROJECT.vercel.app`
-   - Host: `https://YOUR-PROJECT.vercel.app/host` (PIN in `src/lib/event.ts`)
+   - Host: `https://YOUR-PROJECT.vercel.app/host` (PIN from the `HOST_PIN` environment variable)
 
 RSVPs on Vercel are stored via Resend email records (same inbox as notifications), so they persist across deploys when `RESEND_API_KEY` is set.
 
