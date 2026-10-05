@@ -1,21 +1,25 @@
+"use client";
+
 import { BabyRadha, KabirSaheb, KrishnaWithFlute, LotusDivider, MotherToBe } from "@/components/devotional-art";
 import { Reveal } from "@/components/reveal";
 import { event } from "@/lib/event";
+import { useCopy } from "@/lib/i18n";
 
 /** Opening blessing — Kabir Saheb with the greeting */
 export function SahibBandgi() {
+  const { t } = useCopy();
   return (
     <Reveal>
       <section aria-labelledby="sahib-bandgi" className="mx-auto mt-12 max-w-xl text-center sm:mt-16">
         <div className="art-halo mx-auto w-52 sm:w-64">
           <KabirSaheb
-            alt="Illustration of Kabir Saheb seated among lotus flowers"
+            alt={t.kabirAlt}
             sizes="(min-width: 640px) 256px, 208px"
             className="h-auto w-full"
           />
         </div>
         <p className="eyebrow mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
-          {event.blessing.eyebrow}
+          {t.blessingEyebrow}
         </p>
         <h2
           id="sahib-bandgi"
@@ -29,7 +33,7 @@ export function SahibBandgi() {
         </p>
         <LotusDivider className="mt-4" />
         <p className="mx-auto mt-4 max-w-md text-[0.95rem] leading-relaxed text-[var(--ink-soft)] sm:text-base">
-          {event.blessing.message}
+          {t.blessingMessage}
         </p>
       </section>
     </Reveal>
@@ -38,6 +42,7 @@ export function SahibBandgi() {
 
 /** The shower itself — Shrimant Sanskar */
 export function ShrimantSanskar() {
+  const { t } = useCopy();
   return (
     <Reveal>
       <section
@@ -47,15 +52,15 @@ export function ShrimantSanskar() {
         <MotherToBe sizes="(min-width: 640px) 208px, 176px" className="mx-auto h-auto w-44 sm:w-52" />
         <div className="mt-5 sm:mt-0">
           <p className="eyebrow text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
-            {event.shrimant.eyebrow}
+            {t.shrimantEyebrow}
           </p>
           <h2 id="shrimant-sanskar" className="mt-2 font-display text-3xl leading-tight text-[var(--ink)] sm:text-4xl">
-            {event.shrimant.title}
+            {t.shrimantTitle}
           </h2>
           <p className="mt-3 font-display text-lg italic leading-snug text-[var(--blush-deep)]">
-            {event.shrimant.line}
+            {t.shrimantLine}
           </p>
-          <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--ink-soft)]">{event.shrimant.message}</p>
+          <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--ink-soft)]">{t.shrimantMessage}</p>
         </div>
       </section>
     </Reveal>
@@ -64,6 +69,7 @@ export function ShrimantSanskar() {
 
 /** Closing note with Krishna and Radha */
 export function WithLove() {
+  const { t } = useCopy();
   return (
     <Reveal>
       <footer className="mx-auto mt-14 text-center sm:mt-20">
@@ -72,8 +78,8 @@ export function WithLove() {
           <BabyRadha sizes="(min-width: 640px) 200px, 45vw" className="art-float art-float-delay h-auto w-[46%]" />
         </div>
         <LotusDivider className="mt-5" />
-        <p className="mt-3 font-display text-2xl text-[var(--ink)] sm:text-3xl">With love,</p>
-        <p className="font-display text-xl italic text-[var(--blush-deep)] sm:text-2xl">{event.brand}</p>
+        <p className="mt-3 font-display text-2xl text-[var(--ink)] sm:text-3xl">{t.withLove}</p>
+        <p className="font-display text-xl italic text-[var(--blush-deep)] sm:text-2xl">{t.brand}</p>
         <p lang="hi" className="font-hindi mt-3 text-sm text-[var(--ink-muted)]">{event.blessing.title}</p>
       </footer>
     </Reveal>

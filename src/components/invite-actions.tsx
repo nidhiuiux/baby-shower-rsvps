@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, MapPin, MessageCircle } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import { Calendar, MapPin, MessageCircle, Share2 } from "lucide-react";
+import { shareLink, type Copy, type Lang } from "@/lib/copy";
 import { event } from "@/lib/event";
+import { useCopy } from "@/lib/i18n";
 
 function icsStamp(iso: string) {
   return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
@@ -12,9 +14,9 @@ function icsText(value: string) {
   return value.replaceAll("\\", "\\\\").replaceAll("\n", "\\n").replaceAll(",", "\\,").replaceAll(";", "\\;");
 }
 
-function buildIcs() {
-  const summary = icsText(`${event.title} — ${event.brand}`);
-  const description = icsText(`${event.tagline} RSVP at ${window.location.origin}`);
+function buildIcs(t: Copy) {
+  const summary = icsText(t.calendarTitle);
+  const description = icsText(t.calendarDescription(window.location.origin));
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -35,27 +37,37 @@ function buildIcs() {
   return lines.join("\r\n");
 }
 
-function shareText() {
-  const url = window.location.origin;
-  return [
-    `You're invited to ${event.brand}'s baby shower.`,
-    event.date,
-    event.location,
-    `RSVP: ${url}`,
-  ].join("\n");
+/** The invitation message in the language the guest is viewing the page in */
+function shareText(t: Copy, lang: Lang) {
+  return t.shareMessage(shareLink(window.location.origin, lang));
 }
 
 export function InviteActions() {
+  const { t, lang } = useCopy();
   const [copied, setCopied] = useState(false);
+  // Only phones and some browsers offer the system share sheet (Messages, Gmail, Google apps...)
+  const canShare = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator.share === "function",
+    () => false,
+  );
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
   function shareWhatsApp() {
-    const href = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
+    const href = `https://wa.me/?text=${encodeURIComponent(shareText(t, lang))}`;
     window.open(href, "_blank", "noopener,noreferrer");
   }
 
+  async function shareNative() {
+    try {
+      await navigator.share({ title: t.shareTitle, text: shareText(t, lang) });
+    } catch {
+      // Closing the share sheet is not an error
+    }
+  }
+
   function saveDate() {
-    const blob = new Blob([buildIcs()], { type: "text/calendar;charset=utf-8" });
+    const blob = new Blob([buildIcs(t)], { type: "text/calendar;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -79,19 +91,25 @@ export function InviteActions() {
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button type="button" onClick={shareWhatsApp} className="invite-chip">
           <MessageCircle aria-hidden />
-          WhatsApp
+          {t.actionWhatsapp}
         </button>
+        {canShare ? (
+          <button type="button" onClick={() => void shareNative()} className="invite-chip">
+            <Share2 aria-hidden />
+            {t.actionShare}
+          </button>
+        ) : null}
         <button type="button" onClick={saveDate} className="invite-chip">
           <Calendar aria-hidden />
-          Save the date
+          {t.actionSaveDate}
         </button>
         <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="invite-chip">
           <MapPin aria-hidden />
-          Directions
+          {t.actionDirections}
         </a>
       </div>
       <button type="button" onClick={copyLink} className="text-xs font-medium text-[var(--leaf-deep)] underline-offset-4 hover:underline">
-        {copied ? "Link copied" : "Copy RSVP link"}
+        {copied ? t.actionCopied : t.actionCopy}
       </button>
     </div>
   );

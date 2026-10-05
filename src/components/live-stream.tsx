@@ -1,9 +1,13 @@
+"use client";
+
 import { Reveal } from "@/components/reveal";
 import { event } from "@/lib/event";
+import { useCopy } from "@/lib/i18n";
 import { Video } from "lucide-react";
 
 /** One calm section for guests joining online; shows "stay tuned" until event.liveStreamUrl is set */
 export function LiveStream() {
+  const { t } = useCopy();
   const url = event.liveStreamUrl;
 
   return (
@@ -16,17 +20,15 @@ export function LiveStream() {
           <Video className="size-6" strokeWidth={1.5} aria-hidden />
         </span>
         <p className="eyebrow mt-5 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
-          Can&apos;t be there in person?
+          {t.liveEyebrow}
         </p>
         <h2 id="live-stream" className="mt-2 font-display text-3xl leading-tight text-[var(--ink)] sm:text-4xl">
-          Live Stream
+          {t.liveHeading}
         </h2>
         <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--ink-soft)]">
-          {url
-            ? "Join us online and celebrate with us from wherever you are."
-            : "Stay tuned — we will share the live stream link right here."}
+          {url ? t.liveReady : t.liveSoon}
         </p>
-        <p className="mt-1 text-sm text-[var(--ink-muted)]">{event.date}</p>
+        <p className="mt-1 text-sm text-[var(--ink-muted)]">{t.liveWhen}</p>
         {url ? (
           <a
             href={url}
@@ -34,11 +36,11 @@ export function LiveStream() {
             rel="noopener noreferrer"
             className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-[var(--leaf)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--leaf-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50"
           >
-            Watch live
+            {t.liveWatch}
           </a>
         ) : (
           <p className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-dashed border-[var(--line)] bg-white/60 px-6 text-sm font-semibold text-[var(--ink-soft)]">
-            Link coming soon
+            {t.liveSoonPill}
           </p>
         )}
       </section>

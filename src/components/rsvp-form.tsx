@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useCopy } from "@/lib/i18n";
 import type { Attendance } from "@/lib/rsvps";
 
 type Status = "idle" | "saving" | "done" | "error";
@@ -16,6 +17,7 @@ function parseGuestCount(raw: string): number {
 }
 
 export function RsvpForm() {
+  const { t, lang } = useCopy();
   const [name, setName] = useState("");
   const [attending, setAttending] = useState<Attendance | "">("");
   const [guests, setGuests] = useState("1");
@@ -28,11 +30,11 @@ export function RsvpForm() {
     setError("");
 
     if (!name.trim()) {
-      setError("Please enter your name.");
+      setError(t.formErrName);
       return;
     }
     if (!attending) {
-      setError("Please choose Yes or No.");
+      setError(t.formErrChoice);
       return;
     }
 
@@ -55,13 +57,13 @@ export function RsvpForm() {
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setError((lang === "en" && data.error) || t.formErrGeneric);
         setStatus("error");
         return;
       }
       setStatus("done");
     } catch {
-      setError("Could not send your RSVP. Please try again.");
+      setError(t.formErrSend);
       setStatus("error");
     }
   }
@@ -70,12 +72,12 @@ export function RsvpForm() {
     return (
       <div className="thanks animate-rise text-center">
         <p className="font-display text-3xl text-[var(--ink)] sm:text-4xl">
-          {attending === "yes" ? "Wonderful — see you there!" : "Thank you for letting us know"}
+          {attending === "yes" ? t.thanksYes : t.thanksNo}
         </p>
         <p className="mt-3 text-base text-[var(--ink-soft)] sm:text-lg">
           {attending === "yes"
-            ? `We're so glad you're coming, ${name.trim().split(" ")[0]}.`
-            : `We'll miss you, ${name.trim().split(" ")[0]}.`}
+            ? t.thanksYesSub(name.trim().split(" ")[0])
+            : t.thanksNoSub(name.trim().split(" ")[0])}
         </p>
       </div>
     );
@@ -85,13 +87,13 @@ export function RsvpForm() {
     <form onSubmit={onSubmit} className="rsvp-form animate-rise-delay space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-[var(--ink)]">
-          Your name
+          {t.formName}
         </Label>
         <Input
           id="name"
           name="name"
           autoComplete="name"
-          placeholder="First and last name"
+          placeholder={t.formNamePlaceholder}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="h-12 border-[var(--line)] bg-white/70 text-base text-[var(--ink)] placeholder:text-[var(--ink-muted)]"
@@ -101,13 +103,13 @@ export function RsvpForm() {
 
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium text-[var(--ink)]">
-          Will you attend?
+          {t.formAttend}
         </legend>
         <div className="grid grid-cols-2 gap-3">
           {(
             [
-              { value: "yes", label: "Yes, I'll be there" },
-              { value: "no", label: "Sorry, can't make it" },
+              { value: "yes", label: t.formYes },
+              { value: "no", label: t.formNo },
             ] as const
           ).map((option) => {
             const selected = attending === option.value;
@@ -133,7 +135,7 @@ export function RsvpForm() {
       {attending === "yes" && (
         <div className="space-y-2 animate-fade">
           <Label htmlFor="guests" className="text-[var(--ink)]">
-            Number of guests (including you)
+            {t.formGuests}
           </Label>
           <Input
             id="guests"
@@ -157,12 +159,12 @@ export function RsvpForm() {
 
       <div className="space-y-2">
         <Label htmlFor="note" className="text-[var(--ink)]">
-          A note <span className="font-normal text-[var(--ink-muted)]">(optional)</span>
+          {t.formNote} <span className="font-normal text-[var(--ink-muted)]">{t.formOptional}</span>
         </Label>
         <Textarea
           id="note"
           name="note"
-          placeholder="Dietary needs, a sweet message…"
+          placeholder={t.formNotePlaceholder}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
@@ -181,7 +183,7 @@ export function RsvpForm() {
         disabled={status === "saving"}
         className="h-12 w-full rounded-xl bg-[var(--leaf)] text-base font-semibold text-white hover:bg-[var(--leaf-deep)]"
       >
-        {status === "saving" ? "Sending…" : "Send RSVP"}
+        {status === "saving" ? t.formSending : t.formSend}
       </Button>
     </form>
   );

@@ -3,16 +3,24 @@
 import { useRef } from "react";
 import { useScroll } from "framer-motion";
 import { CharacterV1 } from "@/components/ui/text-scroll-animation";
+import { useCopy } from "@/lib/i18n";
 
-const text = "WITH LOVE";
+/** Split into whole letters so Gujarati conjuncts are never torn apart */
+function letters(text: string): string[] {
+  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
+    return Array.from(new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(text), (part) => part.segment);
+  }
+  return Array.from(text);
+}
 
 export function CelebrateScroll() {
+  const { t } = useCopy();
   const targetRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["start 0.85", "start 0.25"],
   });
-  const characters = text.split("");
+  const characters = letters(t.celebrateText);
   const centerIndex = Math.floor(characters.length / 2);
 
   return (
@@ -23,7 +31,7 @@ export function CelebrateScroll() {
     >
       <div className="text-center">
         <p className="mb-4 text-[0.68rem] font-semibold tracking-[0.28em] text-[var(--leaf-deep)] uppercase">
-          Scroll and the letters gather
+          {t.celebrateHint}
         </p>
         <div
           className="font-display text-5xl tracking-tight text-[var(--ink)] uppercase sm:text-7xl"

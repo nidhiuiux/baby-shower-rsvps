@@ -26,14 +26,16 @@ type ShowerTicketProps = {
   eventTitle?: string;
   stubText?: string;
   watermark?: string;
+  dates?: string;
 };
 
 export function ShowerTicket({
   name = "Nidhi & Hardik",
   presenter = "Parents-to-be",
-  eventTitle = "Baby Shower",
+  eventTitle = "Shrimant Vidhi",
   stubText = "Admit one",
   watermark = "2026",
+  dates = "Oct 25 · 10:30 AM",
 }: ShowerTicketProps) {
   const frame = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(320);
@@ -56,7 +58,7 @@ export function ShowerTicket({
           presenter={presenter}
           event={eventTitle}
           venue="124 Crain Road"
-          dates="Oct 25 · 10:30 AM"
+          dates={dates}
           stubText={stubText}
           watermark={watermark}
           width={width}
