@@ -114,6 +114,10 @@
   }
 }
 
+.font-hindi {
+  font-family: var(--font-devanagari), var(--font-fraunces), serif;
+}
+
 .font-display {
   font-family: var(--font-fraunces), ui-serif, Georgia, serif;
   font-optical-sizing: auto;

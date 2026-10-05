@@ -17,9 +17,16 @@ export function SahibBandgi() {
         <p className="eyebrow mt-6 text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-[var(--leaf-deep)] sm:text-xs">
           {event.blessing.eyebrow}
         </p>
-        <h2 id="sahib-bandgi" className="mt-2 font-display text-4xl leading-tight tracking-tight text-[var(--ink)] sm:text-5xl">
+        <h2
+          id="sahib-bandgi"
+          lang="hi"
+          className="font-hindi mt-2 text-4xl leading-snug text-[var(--ink)] sm:text-5xl"
+        >
           {event.blessing.title}
         </h2>
+        <p className="font-display mt-1 text-lg italic text-[var(--blush-deep)] sm:text-xl">
+          {event.blessing.transliteration}
+        </p>
         <LotusDivider className="mt-4" />
         <p className="mx-auto mt-4 max-w-md text-[0.95rem] leading-relaxed text-[var(--ink-soft)] sm:text-base">
           {event.blessing.message}
@@ -67,7 +74,7 @@ export function WithLove() {
         <LotusDivider className="mt-5" />
         <p className="mt-3 font-display text-2xl text-[var(--ink)] sm:text-3xl">With love,</p>
         <p className="font-display text-xl italic text-[var(--blush-deep)] sm:text-2xl">{event.brand}</p>
-        <p className="mt-3 text-xs tracking-[0.2em] text-[var(--ink-muted)] uppercase">{event.blessing.title}</p>
+        <p lang="hi" className="font-hindi mt-3 text-sm text-[var(--ink-muted)]">{event.blessing.title}</p>
       </footer>
     </Reveal>
   );

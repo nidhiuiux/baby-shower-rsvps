@@ -22,7 +22,9 @@ export const event = {
   /** Opening blessing, shown with Kabir Saheb */
   blessing: {
     eyebrow: "With Saheb's blessings",
-    title: "Sahib Bandgi Sahib",
+    title: "साहेब बंदगी साहेब",
+    /** Latin spelling shown beneath the Hindi greeting */
+    transliteration: "Saheb Bandagi Saheb",
     message: "With hearts full of gratitude, we warmly welcome you to share in our joy.",
   },
   /** The ceremony itself, shown with the mother-to-be */
