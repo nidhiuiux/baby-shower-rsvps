@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Geist_Mono, Noto_Serif_Devanagari, Nunito } from "next/font/google";
+import {
+  Fraunces,
+  Geist_Mono,
+  Noto_Sans_Gujarati,
+  Noto_Serif_Devanagari,
+  Noto_Serif_Gujarati,
+  Nunito,
+} from "next/font/google";
 import { event } from "@/lib/event";
 import "./globals.css";
 
@@ -17,6 +24,22 @@ const devanagari = Noto_Serif_Devanagari({
   variable: "--font-devanagari",
   subsets: ["devanagari"],
   weight: ["400", "500"],
+});
+
+// Gujarati letters fall back to these when the Latin fonts have no glyph for them.
+// They are only downloaded when a guest actually switches to Gujarati.
+const gujaratiSerif = Noto_Serif_Gujarati({
+  variable: "--font-gujarati-serif",
+  subsets: ["gujarati"],
+  weight: ["400", "500", "600"],
+  preload: false,
+});
+
+const gujaratiSans = Noto_Sans_Gujarati({
+  variable: "--font-gujarati-sans",
+  subsets: ["gujarati"],
+  weight: ["400", "500", "600", "700"],
+  preload: false,
 });
 
 const geistMono = Geist_Mono({
@@ -59,7 +82,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${nunito.variable} ${geistMono.variable} ${devanagari.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${nunito.variable} ${geistMono.variable} ${devanagari.variable} ${gujaratiSerif.variable} ${gujaratiSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
