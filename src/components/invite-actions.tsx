@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, MapPin, MessageCircle } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import { Calendar, MapPin, MessageCircle, Share2 } from "lucide-react";
 import { event } from "@/lib/event";
 
 function icsStamp(iso: string) {
@@ -36,22 +36,44 @@ function buildIcs() {
 }
 
 function shareText() {
-  const url = window.location.origin;
+  const { share } = event;
   return [
-    `You're invited to ${event.brand}'s baby shower.`,
-    event.date,
-    event.location,
-    `RSVP: ${url}`,
+    share.greeting,
+    "",
+    share.intro,
+    "",
+    share.closing,
+    "",
+    `🗓️ : ${share.date}`,
+    `🕥 : ${share.time}`,
+    `📍 : ${event.location}`,
+    "",
+    share.rsvpLine,
+    window.location.origin,
   ].join("\n");
 }
 
 export function InviteActions() {
   const [copied, setCopied] = useState(false);
+  // Only phones and some browsers offer the system share sheet (Messages, Gmail, Google apps...)
+  const canShare = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator.share === "function",
+    () => false,
+  );
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
   function shareWhatsApp() {
     const href = `https://wa.me/?text=${encodeURIComponent(shareText())}`;
     window.open(href, "_blank", "noopener,noreferrer");
+  }
+
+  async function shareNative() {
+    try {
+      await navigator.share({ title: `${event.brand} | Shrimant Sanskar & ${event.title}`, text: shareText() });
+    } catch {
+      // Closing the share sheet is not an error
+    }
   }
 
   function saveDate() {
@@ -81,6 +103,12 @@ export function InviteActions() {
           <MessageCircle aria-hidden />
           WhatsApp
         </button>
+        {canShare ? (
+          <button type="button" onClick={() => void shareNative()} className="invite-chip">
+            <Share2 aria-hidden />
+            Share
+          </button>
+        ) : null}
         <button type="button" onClick={saveDate} className="invite-chip">
           <Calendar aria-hidden />
           Save the date
