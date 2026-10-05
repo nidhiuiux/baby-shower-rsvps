@@ -5,6 +5,7 @@ import { CelebrateScroll } from "@/components/celebrate-scroll";
 import { Countdown } from "@/components/countdown";
 import { InvitationReveal } from "@/components/invitation-reveal";
 import { InviteActions } from "@/components/invite-actions";
+import { LiveStream } from "@/components/live-stream";
 import { RsvpForm } from "@/components/rsvp-form";
 import { ShowerDetails } from "@/components/shower-details";
 import { ShowerTicket } from "@/components/shower-ticket";
@@ -70,6 +71,8 @@ export default function Home() {
             </p>
             <RsvpForm />
           </section>
+
+          <LiveStream />
 
           <WithLove />
         </main>

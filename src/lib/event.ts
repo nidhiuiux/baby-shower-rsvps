@@ -15,6 +15,11 @@ export const event = {
   /** ISO end used by the calendar file (about three hours) */
   endsAt: "2026-10-25T13:30:00-04:00",
   location: "124 Crain Road, Paramus, NJ 07652",
+  /**
+   * Live-stream link for guests who can't attend in person.
+   * Leave empty until you have it — the page shows "stay tuned" instead.
+   */
+  liveStreamUrl: "",
   /** Simple PIN to view RSVP responses at /host */
   hostPin: "shower",
   /** Email that receives a notification for every RSVP */
