@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { AttendanceChoice } from "@/components/attendance-choice";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,7 +39,6 @@ function buildSummary(list: Rsvp[]): Summary {
 export function HostDashboard() {
   const [pin, setPin] = useState("");
   const [rsvps, setRsvps] = useState<Rsvp[] | null>(null);
-  const [summary, setSummary] = useState<Summary | null>(null);
   const [emailStatus, setEmailStatus] = useState<EmailStatus | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,10 @@ export function HostDashboard() {
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const summary = rsvps ? buildSummary(rsvps) : null;
+  const busy = savingManual || removingId !== null;
+  const [announcement, setAnnouncement] = useState("");
 
   async function loadResponses(e: React.FormEvent) {
     e.preventDefault();
@@ -65,12 +70,10 @@ export function HostDashboard() {
       if (!res.ok) {
         setError(data.error || "Could not load responses.");
         setRsvps(null);
-        setSummary(null);
         setEmailStatus(null);
         return;
       }
       setRsvps(data.rsvps ?? []);
-      setSummary(data.summary ?? null);
       setEmailStatus(data.email ?? null);
     } catch {
       setError("Could not load responses. Please try again.");
@@ -81,8 +84,10 @@ export function HostDashboard() {
 
   async function addManual(e: React.FormEvent) {
     e.preventDefault();
+    if (busy) return;
     setManualError("");
     setError("");
+    setAnnouncement("");
     if (!manualName.trim()) {
       setManualError("Enter a name.");
       return;
@@ -121,12 +126,9 @@ export function HostDashboard() {
         return;
       }
 
-      const next = [
-        data.rsvp,
-        ...(rsvps ?? []).filter((r) => r.id !== data.rsvp!.id),
-      ];
-      setRsvps(next);
-      setSummary(buildSummary(next));
+      const added = data.rsvp;
+      setRsvps((current) => [added, ...(current ?? []).filter((r) => r.id !== added.id)]);
+      setAnnouncement(`Added ${added.name}.`);
       setManualName("");
       setManualNote("");
       setManualGuests("1");
@@ -139,38 +141,24 @@ export function HostDashboard() {
   }
 
   async function removeRsvp(id: string) {
-    if (removingId) return;
+    if (busy) return;
     setError("");
+    setAnnouncement("");
     setRemovingId(id);
-
-    // Instant UI remove; roll back if server fails.
-    const previous = rsvps ?? [];
-    const optimistic = previous.filter((r) => r.id !== id);
-    setRsvps(optimistic);
-    setSummary(buildSummary(optimistic));
-
     try {
       const res = await fetch("/api/rsvp", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, pin }),
       });
-      const data = (await res.json()) as {
-        error?: string;
-        removedId?: string;
-      };
+      const data = (await res.json()) as { error?: string };
       if (!res.ok) {
-        setRsvps(previous);
-        setSummary(buildSummary(previous));
         setError(data.error || "Could not remove RSVP.");
         return;
       }
-      // Keep optimistic list — delete already applied in the UI.
-      setRsvps(optimistic);
-      setSummary(buildSummary(optimistic));
+      setRsvps((current) => current?.filter((r) => r.id !== id) ?? null);
+      setAnnouncement("RSVP removed.");
     } catch {
-      setRsvps(previous);
-      setSummary(buildSummary(previous));
       setError("Could not remove RSVP. Please try again.");
     } finally {
       setRemovingId(null);
@@ -179,7 +167,7 @@ export function HostDashboard() {
 
   if (!rsvps) {
     return (
-      <form onSubmit={loadResponses} className="mx-auto w-full max-w-sm space-y-4">
+      <form onSubmit={loadResponses} aria-busy={loading} className="surface-card panel-padding mx-auto w-full max-w-md space-y-6">
         <div className="space-y-2">
           <Label htmlFor="pin">Enter host PIN</Label>
           <Input
@@ -189,19 +177,19 @@ export function HostDashboard() {
             value={pin}
             onChange={(e) => setPin(e.target.value)}
             placeholder="PIN"
-            className="h-12"
+            disabled={loading}
             required
           />
         </div>
         {error && (
-          <p className="text-sm text-[var(--blush-deep)]" role="alert">
+          <p className="form-error" role="alert">
             {error}
           </p>
         )}
         <Button
           type="submit"
           disabled={loading}
-          className="h-12 w-full bg-[var(--leaf)] text-white hover:bg-[var(--leaf-deep)]"
+          className="w-full"
         >
           {loading ? "Checking…" : "Open host access"}
         </Button>
@@ -210,15 +198,10 @@ export function HostDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="content-width space-y-8">
+      <p className="sr-only" role="status">{announcement}</p>
       {emailStatus && (
-        <div
-          className={`rounded-2xl px-4 py-3 text-sm ${
-            emailStatus.configured
-              ? "bg-[var(--leaf-soft)] text-[var(--leaf-deep)]"
-              : "bg-[#f8e8e6] text-[var(--blush-deep)]"
-          }`}
-        >
+        <div className="status-note">
           {emailStatus.configured ? (
             <p>
               Email alerts on for <strong>{emailStatus.notifyEmail}</strong>
@@ -240,7 +223,7 @@ export function HostDashboard() {
             { label: "Can't make it", value: summary.no },
             { label: "Guest total", value: summary.headcount },
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl bg-white/70 px-4 py-5 text-center">
+            <div key={item.label} className="surface-card px-4 py-5 text-center">
               <p className="font-display text-3xl text-[var(--ink)]">{item.value}</p>
               <p className="mt-1 text-sm text-[var(--ink-soft)]">{item.label}</p>
             </div>
@@ -250,99 +233,92 @@ export function HostDashboard() {
 
       <form
         onSubmit={addManual}
-        className="space-y-4 rounded-[1.5rem] border border-[var(--line)] bg-white/70 p-5 sm:p-6"
+        aria-busy={savingManual}
+        className="surface-card panel-padding"
       >
-        <h2 className="font-display text-2xl text-[var(--ink)]">Add RSVP manually</h2>
-        <p className="text-sm text-[var(--ink-soft)]">
+        <h2 className="section-heading">Add RSVP manually</h2>
+        <p className="section-copy mt-2 mb-6">
           Use this when someone replies by text, call, or in person.
         </p>
-        <div className="space-y-2">
-          <Label htmlFor="manual-name">Name</Label>
-          <Input
-            id="manual-name"
-            value={manualName}
-            onChange={(e) => setManualName(e.target.value)}
-            placeholder="Guest name"
-            className="h-12"
-            required
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {(
-            [
-              { value: "yes", label: "Coming" },
-              { value: "no", label: "Can't make it" },
-            ] as const
-          ).map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setManualAttending(option.value)}
-              className={`h-11 rounded-xl border text-sm font-medium transition-all ${
-                manualAttending === option.value
-                  ? "border-[var(--leaf)] bg-[var(--leaf-soft)] text-[var(--ink)]"
-                  : "border-[var(--line)] bg-white text-[var(--ink-soft)]"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-        {manualAttending === "yes" && (
+        <fieldset disabled={busy} className="min-w-0 space-y-6">
+          <legend className="sr-only">Guest details</legend>
           <div className="space-y-2">
-            <Label htmlFor="manual-guests">Number of guests (including them)</Label>
+            <Label htmlFor="manual-name">Name</Label>
             <Input
-              id="manual-guests"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={20}
-              value={manualGuests}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v === "" || /^\d{0,2}$/.test(v)) {
-                  setManualGuests(v);
-                }
-              }}
-              onBlur={() => setManualGuests(String(parseGuestCount(manualGuests)))}
-              className="h-12 w-32"
+              id="manual-name"
+              autoComplete="name"
+              maxLength={80}
+              value={manualName}
+              onChange={(e) => setManualName(e.target.value)}
+              placeholder="Guest name"
+              required
             />
           </div>
-        )}
-        <div className="space-y-2">
-          <Label htmlFor="manual-note">
-            Note <span className="font-normal text-[var(--ink-muted)]">(optional)</span>
-          </Label>
-          <Input
-            id="manual-note"
-            value={manualNote}
-            onChange={(e) => setManualNote(e.target.value)}
-            placeholder="Said yes by text…"
-            className="h-12"
+          <AttendanceChoice
+            name="manual-attending"
+            legend="Will they attend?"
+            value={manualAttending}
+            onChange={setManualAttending}
+            yesLabel="Coming"
+            noLabel="Can't make it"
           />
-        </div>
-        {manualError && (
-          <p className="text-sm text-[var(--blush-deep)]" role="alert">
-            {manualError}
-          </p>
-        )}
-        <Button
-          type="submit"
-          disabled={savingManual}
-          className="h-12 w-full bg-[var(--leaf)] text-white hover:bg-[var(--leaf-deep)]"
-        >
-          {savingManual ? "Adding…" : "Add person"}
-        </Button>
+          {manualAttending === "yes" && (
+            <div className="space-y-2">
+              <Label htmlFor="manual-guests">Number of guests (including them)</Label>
+              <Input
+                id="manual-guests"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={20}
+                value={manualGuests}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || /^\d{0,2}$/.test(v)) {
+                    setManualGuests(v);
+                  }
+                }}
+                onBlur={() => setManualGuests(String(parseGuestCount(manualGuests)))}
+                className="w-32"
+              />
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="manual-note">
+              Note <span className="font-normal text-[var(--ink-muted)]">(optional)</span>
+            </Label>
+            <Textarea
+              id="manual-note"
+              rows={3}
+              maxLength={500}
+              value={manualNote}
+              onChange={(e) => setManualNote(e.target.value)}
+              placeholder="Said yes by text…"
+            />
+          </div>
+          {manualError && (
+            <p className="form-error" role="alert">
+              {manualError}
+            </p>
+          )}
+          <Button
+            type="submit"
+            disabled={busy}
+            className="w-full"
+          >
+            {savingManual ? "Adding…" : "Add person"}
+          </Button>
+        </fieldset>
       </form>
 
       {error && (
-        <p className="text-center text-sm text-[var(--blush-deep)]" role="alert">
+        <p className="form-error" role="alert">
           {error}
         </p>
       )}
 
       {rsvps.length === 0 ? (
-        <p className="text-center text-[var(--ink-soft)]">
+        <p className="surface-card panel-padding section-copy text-center">
           No RSVPs yet. Add people manually above, or share your RSVP link.
         </p>
       ) : (
@@ -350,11 +326,11 @@ export function HostDashboard() {
           {rsvps.map((rsvp) => (
             <li
               key={rsvp.id}
-              className="rounded-2xl border border-[var(--line)] bg-white/80 px-5 py-4"
+              className="surface-card p-5 sm:p-6"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-[var(--ink)]">{rsvp.name}</p>
+                <div className="min-w-0 flex-1 break-words">
+                  <p className="font-semibold text-[var(--ink)]">{rsvp.name}</p>
                   <p
                     className={`mt-1 text-sm font-medium ${
                       rsvp.attending === "yes"
@@ -367,14 +343,15 @@ export function HostDashboard() {
                       : "Can't make it"}
                   </p>
                   {rsvp.note && (
-                    <p className="mt-2 text-sm text-[var(--ink-soft)]">{rsvp.note}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink-soft)]">{rsvp.note}</p>
                   )}
                 </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={removingId === rsvp.id}
+                  disabled={busy}
+                  aria-label={`Remove RSVP for ${rsvp.name}`}
                   onClick={() => removeRsvp(rsvp.id)}
                 >
                   {removingId === rsvp.id ? "Removing…" : "Remove"}
@@ -389,9 +366,16 @@ export function HostDashboard() {
         <Button
           type="button"
           variant="outline"
+          disabled={busy}
           onClick={() => {
             setRsvps(null);
-            setSummary(null);
+            setError("");
+            setManualError("");
+            setManualName("");
+            setManualNote("");
+            setManualGuests("1");
+            setManualAttending("yes");
+            setAnnouncement("");
             setEmailStatus(null);
             setPin("");
           }}

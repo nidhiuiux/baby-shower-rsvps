@@ -45,6 +45,7 @@ function shareText(t: Copy, lang: Lang) {
 export function InviteActions() {
   const { t, lang } = useCopy();
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
   // Only phones and some browsers offer the system share sheet (Messages, Gmail, Google apps...)
   const canShare = useSyncExternalStore(
     () => () => {},
@@ -78,10 +79,12 @@ export function InviteActions() {
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(window.location.origin);
+      await navigator.clipboard.writeText(shareLink(window.location.origin, lang));
+      setCopyError(false);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
+      setCopyError(true);
       setCopied(false);
     }
   }
@@ -108,9 +111,11 @@ export function InviteActions() {
           {t.actionDirections}
         </a>
       </div>
-      <button type="button" onClick={copyLink} className="text-xs font-medium text-[var(--leaf-deep)] underline-offset-4 hover:underline">
+      <button type="button" onClick={copyLink} className="min-h-11 rounded-lg px-3 py-2 text-sm font-semibold text-primary underline-offset-4 hover:underline">
         {copied ? t.actionCopied : t.actionCopy}
       </button>
+      <p className="sr-only" role="status">{copied ? t.actionCopied : ""}</p>
+      {copyError && <p role="alert" className="text-sm text-destructive">{t.actionCopyError}</p>}
     </div>
   );
 }

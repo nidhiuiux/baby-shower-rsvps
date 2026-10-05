@@ -53,7 +53,7 @@ set `NOTIFY_FROM_EMAIL`.
 
 ## How it works
 
-1. **Guest link (share this):** `/` — simple RSVP (name, yes/no, optional note). No guest-count field.
+1. **Guest link (share this):** `/` — RSVP form with name, attendance, guest count when attending, and an optional note.
 2. **Host link (keep private):** `/host` — enter your PIN to view responses, add people manually, or remove entries
 3. Each RSVP is saved and an email notification is sent to you
 4. Responses are also stored in `data/rsvps.json` on the server
@@ -82,3 +82,14 @@ RSVPs on Vercel are stored via Resend email records (same inbox as notifications
 | `npm run dev` | Start the development server |
 | `npm run build` | Production build |
 | `npm start` | Run the production build |
+
+## UI conventions
+
+Shared colors, panel styles, type, and section spacing live in `src/app/globals.css`.
+Use `surface-card`, `panel-padding`, `content-width`, `section-space`,
+`section-heading`, and `section-copy` for new sections. Use the shared `Button`,
+`Input`, `Textarea`, `Label`, and `AttendanceChoice` components for forms.
+Keep guest-facing strings in both language entries in `src/lib/copy.ts`.
+
+See [UI_AUDIT.md](UI_AUDIT.md) for the normalization, verification scope, and
+separate backend findings.

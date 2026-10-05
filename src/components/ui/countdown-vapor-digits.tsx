@@ -398,6 +398,7 @@ export function VaporCountdown({
           slot.g[o + 5] = hy;
         }
       }
+      root.dataset.vaporReady = "true";
       wake();
     };
     const schedule = () => {
@@ -458,6 +459,7 @@ export function VaporCountdown({
       if (timer) clearTimeout(timer);
       cancelAnimationFrame(raf);
       raf = 0;
+      delete root.dataset.vaporReady;
       ro?.disconnect();
       mo.disconnect();
       colorScheme.removeEventListener("change", onThemeChange);
@@ -479,7 +481,8 @@ export function VaporCountdown({
         {Array.from({ length: groupCount }, (_, group) => (
           <span
             key={group}
-            className="flex justify-center font-semibold leading-none tracking-tight text-foreground opacity-0 tabular-nums motion-reduce:opacity-100"
+            data-vc-value
+            className="flex justify-center font-semibold leading-none tracking-tight text-foreground tabular-nums"
           >
             <span data-vc-digit>0</span>
             <span data-vc-digit>0</span>
@@ -491,9 +494,9 @@ export function VaporCountdown({
           <span
             key={label}
             data-vc-label
-            className={`text-center font-mono text-ns-muted ${
+            className={`text-center font-sans font-semibold text-muted-foreground ${
               groupCount === 4
-                ? "text-[10px] tracking-[0.16em] sm:tracking-[0.22em]"
+                ? "text-[0.6875rem] tracking-[0.08em] sm:text-xs sm:tracking-[0.12em]"
                 : "text-[10px] tracking-[0.25em]"
             }`}
           >

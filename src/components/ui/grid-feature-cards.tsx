@@ -7,24 +7,24 @@ type FeatureType = {
   description: React.ReactNode;
 };
 
-type FeatureCardPorps = React.ComponentProps<"div"> & {
+type FeatureCardProps = React.ComponentProps<"div"> & {
   feature: FeatureType;
 };
 
-export function FeatureCard({ feature, className, ...props }: FeatureCardPorps) {
+export function FeatureCard({ feature, className, ...props }: FeatureCardProps) {
   const p = genRandomPattern(5, feature.title);
   return (
-    <div className={cn("relative overflow-hidden p-6", className)} {...props}>
+    <div className={cn("panel-padding relative overflow-hidden", className)} {...props}>
       <div className="pointer-events-none absolute top-0 left-1/2 -mt-2 -ml-20 h-full w-full [mask-image:linear-gradient(white,transparent)]">
         <div className="from-foreground/5 to-foreground/1 absolute inset-0 bg-gradient-to-r [mask-image:radial-gradient(farthest-side_at_top,white,transparent)] opacity-100">
           <GridPattern width={20} height={20} x="-12" y="4" squares={p} className="fill-foreground/5 stroke-foreground/25 absolute inset-0 h-full w-full mix-blend-overlay" />
         </div>
       </div>
-      <span className="relative z-20 flex size-16 items-center justify-center rounded-full border border-white/80 bg-white/80 text-[var(--blush-deep)] shadow-[inset_0_0_0_6px_var(--leaf-soft)]">
+      <span className="icon-medallion relative z-20">
         <feature.icon className="size-6" strokeWidth={1.5} aria-hidden />
       </span>
-      <h3 className={cn("font-display relative z-20 text-sm text-[var(--ink)] md:text-base", "mt-5")}>{feature.title}</h3>
-      <div className="text-muted-foreground relative z-20 mt-2 text-sm leading-relaxed">{feature.description}</div>
+      <h3 className={cn("eyebrow relative z-20", "mt-5")}>{feature.title}</h3>
+      <div className="section-copy relative z-20 mt-2">{feature.description}</div>
     </div>
   );
 }

@@ -37,9 +37,9 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
               lang={option.lang}
               aria-pressed={selected}
               onClick={() => setLang(option.value)}
-              className={`h-10 min-w-[7rem] rounded-full px-5 text-base font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50 ${
+              className={`min-h-11 min-w-[6.5rem] rounded-full px-5 text-base font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50 ${
                 selected
-                  ? "bg-[var(--leaf)] text-white shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
               }`}
             >
@@ -56,7 +56,9 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
 export function HtmlLangSync() {
   const { t } = useCopy();
   useEffect(() => {
+    const previous = document.documentElement.lang;
     document.documentElement.lang = t.htmlLang;
+    return () => { document.documentElement.lang = previous; };
   }, [t.htmlLang]);
   return null;
 }

@@ -46,6 +46,7 @@ const en = {
   actionDirections: "Directions",
   actionCopy: "Copy RSVP link",
   actionCopied: "Link copied",
+  actionCopyError: "Could not copy the link. Please copy the address from your browser.",
 
   detailsHeading: "A few things to know",
   detailWhen: "When",
@@ -153,6 +154,7 @@ const gu: Copy = {
   actionDirections: "રસ્તો જુઓ",
   actionCopy: "RSVP લિંક કૉપિ કરો",
   actionCopied: "લિંક કૉપિ થઈ ગઈ",
+  actionCopyError: "લિંક કૉપિ થઈ શકી નથી. કૃપા કરીને બ્રાઉઝરમાંથી સરનામું કૉપિ કરો.",
 
   detailsHeading: "જાણવા જેવી થોડી વાતો",
   detailWhen: "ક્યારે",

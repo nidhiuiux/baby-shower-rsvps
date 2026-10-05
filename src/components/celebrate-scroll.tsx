@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useScroll } from "framer-motion";
 import { CharacterV1 } from "@/components/ui/text-scroll-animation";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useCopy } from "@/lib/i18n";
 
 /** Split into whole letters so Gujarati conjuncts are never torn apart */
@@ -15,6 +16,7 @@ function letters(text: string): string[] {
 
 export function CelebrateScroll() {
   const { t } = useCopy();
+  const reduced = useReducedMotion();
   const targetRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: targetRef,
@@ -26,18 +28,17 @@ export function CelebrateScroll() {
   return (
     <section
       ref={targetRef}
-      aria-label="Celebrate"
-      className="relative my-4 flex min-h-[46vh] items-center justify-center sm:min-h-[38vh]"
+      aria-label={t.celebrateText}
+      className="relative section-space flex items-center justify-center overflow-hidden py-12 sm:py-16"
     >
       <div className="text-center">
-        <p className="mb-4 text-[0.68rem] font-semibold tracking-[0.28em] text-[var(--leaf-deep)] uppercase">
-          {t.celebrateHint}
-        </p>
+        {!reduced && <p className="eyebrow mb-4">{t.celebrateHint}</p>}
         <div
-          className="font-display text-5xl tracking-tight text-[var(--ink)] uppercase sm:text-7xl"
+          aria-hidden="true"
+          className="font-display text-4xl tracking-tight text-[var(--ink)] uppercase sm:text-7xl"
           style={{ perspective: "500px" }}
         >
-          {characters.map((char, index) => (
+          {reduced ? t.celebrateText : characters.map((char, index) => (
             <CharacterV1
               key={`${char}-${index}`}
               char={char}
