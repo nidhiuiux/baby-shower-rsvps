@@ -9,6 +9,9 @@ import {
   type Attendance,
 } from "@/lib/rsvps";
 
+/** Listing reads RSVPs back from Resend, which can take a few seconds when rate-limited. */
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -90,7 +93,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
 
-  const rsvps = await listRsvps();
+  let rsvps;
+  try {
+    rsvps = await listRsvps();
+  } catch (err) {
+    console.error("Could not list RSVPs:", err);
+    return NextResponse.json(
+      { error: "Could not load responses right now. Please try again in a moment." },
+      { status: 503 },
+    );
+  }
   return NextResponse.json({
     rsvps,
     summary: summarize(rsvps),
