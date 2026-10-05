@@ -21,7 +21,7 @@ const RECORD_START = "---RSVP_JSON---";
 const RECORD_END = "---END---";
 const DELETE_START = "---RSVP_DELETE---";
 
-function useResendStore(): boolean {
+function shouldUseResendStore(): boolean {
   return Boolean(process.env.VERCEL || process.env.RSVP_STORE === "resend");
 }
 
@@ -105,74 +105,106 @@ function parseLegacyEmail(
   });
 }
 
+const DELETE_SUBJECT = "RSVP Delete: ";
+
+/** Resend allows only a couple of requests per second; back off instead of dropping emails. */
+const MAX_ATTEMPTS = 6;
+const FETCH_CONCURRENCY = 2;
+
+/** Emails never change, so what we parse from one can be kept for the life of the server instance. */
+const parsedEmails = new Map<string, Rsvp | null>();
+/** Ids deleted on this instance, covers Resend's short lag before the marker email appears in the list. */
+const recentlyDeleted = new Set<string>();
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type ResendResult<T> = {
+  data: T | null;
+  error: { name?: string; statusCode?: number | null; message: string } | null;
+};
+
+async function resendCall<T>(call: () => Promise<ResendResult<T>>): Promise<T> {
+  let lastMessage = "unknown error";
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+    const { data, error } = await call();
+    if (!error && data) return data;
+    lastMessage = error?.message ?? "empty response";
+    const limited = error?.name === "rate_limit_exceeded" || error?.statusCode === 429;
+    const transient = limited || (error?.statusCode ?? 0) >= 500;
+    if (!transient) break;
+    await sleep(600 * (attempt + 1));
+  }
+  throw new Error(`Resend request failed: ${lastMessage}`);
+}
+
+async function parseEmail(
+  resend: Resend,
+  item: { id: string; subject?: string | null; created_at: string },
+): Promise<Rsvp | null> {
+  if (parsedEmails.has(item.id)) return parsedEmails.get(item.id) ?? null;
+
+  const full = await resendCall(() => resend.emails.get(item.id));
+  const text = full.text || "";
+  let rsvp: Rsvp | null = null;
+
+  const recordPayload = extractJsonBlock(text, RECORD_START);
+  if (recordPayload && typeof recordPayload === "object") {
+    rsvp = normalizeRsvp(recordPayload as Partial<Rsvp>);
+  } else {
+    rsvp = parseLegacyEmail(
+      full.subject || item.subject || "",
+      text,
+      item.id,
+      full.created_at || item.created_at,
+    );
+  }
+
+  parsedEmails.set(item.id, rsvp);
+  return rsvp;
+}
+
 async function listFromResend(): Promise<Rsvp[]> {
   const resend = resendClient();
   if (!resend) return [];
 
-  const records = new Map<string, Rsvp>();
-  const deleted = new Set<string>();
+  const deleted = new Set<string>(recentlyDeleted);
+  const candidates: { id: string; subject?: string | null; created_at: string }[] = [];
   let after: string | undefined;
 
   for (let page = 0; page < 10; page += 1) {
-    const { data, error } = await resend.emails.list(
-      after ? { after } : undefined,
-    );
-    if (error || !data) {
-      console.error("Resend list error:", error);
-      break;
-    }
-
-    // Fetch email bodies in parallel for speed
-    const details = await Promise.all(
-      data.data.map(async (item) => {
-        const { data: full, error: fullError } = await resend.emails.get(item.id);
-        if (fullError || !full?.text) return null;
-        return { item, full };
-      }),
+    const data = await resendCall(() =>
+      resend.emails.list(after ? { limit: 100, after } : { limit: 100 }),
     );
 
-    for (const row of details) {
-      if (!row) continue;
-      const { item, full } = row;
-      const text = full.text || "";
-
-      const deletePayload = extractJsonBlock(text, DELETE_START);
-      if (
-        deletePayload &&
-        typeof deletePayload === "object" &&
-        deletePayload !== null
-      ) {
-        const id = String((deletePayload as { id?: string }).id || "");
+    for (const item of data.data) {
+      const subject = item.subject || "";
+      // Delete markers carry the id in the subject, so no extra request is needed to read them.
+      if (subject.startsWith(DELETE_SUBJECT)) {
+        const id = subject.slice(DELETE_SUBJECT.length).trim();
         if (id) deleted.add(id);
         continue;
       }
-
-      const recordPayload = extractJsonBlock(text, RECORD_START);
-      if (
-        recordPayload &&
-        typeof recordPayload === "object" &&
-        recordPayload !== null
-      ) {
-        const rsvp = normalizeRsvp(recordPayload as Partial<Rsvp>);
-        if (!records.has(rsvp.id)) records.set(rsvp.id, rsvp);
-        continue;
-      }
-
-      const legacy = parseLegacyEmail(
-        full.subject || item.subject || "",
-        text,
-        item.id,
-        full.created_at || item.created_at,
-      );
-      if (legacy && !records.has(legacy.id)) {
-        records.set(legacy.id, legacy);
-      }
+      candidates.push(item);
     }
 
     if (!data.has_more || data.data.length === 0) break;
     after = data.data[data.data.length - 1]?.id;
     if (!after) break;
   }
+
+  // Read the record bodies a couple at a time. Any failure throws, so the host never sees a partial list.
+  const records = new Map<string, Rsvp>();
+  let next = 0;
+  const worker = async () => {
+    while (next < candidates.length) {
+      const item = candidates[next++];
+      const rsvp = await parseEmail(resend, item);
+      if (rsvp && !records.has(rsvp.id)) records.set(rsvp.id, rsvp);
+    }
+  };
+  await Promise.all(Array.from({ length: FETCH_CONCURRENCY }, worker));
 
   return [...records.values()]
     .filter((r) => !deleted.has(r.id))
@@ -192,7 +224,7 @@ async function listFromFile(): Promise<Rsvp[]> {
 }
 
 export async function listRsvps(): Promise<Rsvp[]> {
-  if (useResendStore()) {
+  if (shouldUseResendStore()) {
     return listFromResend();
   }
   return listFromFile();
@@ -222,7 +254,7 @@ export async function addRsvp(
     createdAt: new Date().toISOString(),
   });
 
-  if (useResendStore()) {
+  if (shouldUseResendStore()) {
     return entry;
   }
 
@@ -235,7 +267,7 @@ export async function addRsvp(
 export async function deleteRsvp(
   id: string,
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
-  if (useResendStore()) {
+  if (shouldUseResendStore()) {
     const apiKey = process.env.RESEND_API_KEY?.trim();
     const to = notifyAddress();
     if (!apiKey) return { ok: false, reason: "Missing RESEND_API_KEY" };
@@ -246,31 +278,38 @@ export async function deleteRsvp(
       "Baby Shower RSVP <onboarding@resend.dev>";
 
     // Use REST directly — more reliable than SDK in some serverless runs.
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject: `RSVP Delete: ${id}`,
-        text: [
-          "An RSVP was removed from the host dashboard.",
-          "",
-          DELETE_START,
-          JSON.stringify({ id }),
-          RECORD_END,
-        ].join("\n"),
-      }),
-    });
-
-    if (!res.ok) {
-      const body = await res.text();
-      console.error("Resend delete marker error:", res.status, body);
-      return { ok: false, reason: `Email delete failed (${res.status})` };
+    // Retry when Resend rate-limits us so a delete is never silently lost.
+    let res: Response | null = null;
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [to],
+          subject: `${DELETE_SUBJECT}${id}`,
+          text: [
+            "An RSVP was removed from the host dashboard.",
+            "",
+            DELETE_START,
+            JSON.stringify({ id }),
+            RECORD_END,
+          ].join("\n"),
+        }),
+      });
+      if (res.status !== 429) break;
+      await sleep(700 * (attempt + 1));
     }
+
+    if (!res || !res.ok) {
+      const body = res ? await res.text() : "";
+      console.error("Resend delete marker error:", res?.status, body);
+      return { ok: false, reason: `Email delete failed (${res?.status ?? "no response"})` };
+    }
+    recentlyDeleted.add(id);
     return { ok: true };
   }
 
