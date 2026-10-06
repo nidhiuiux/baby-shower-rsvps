@@ -446,6 +446,20 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   animation: invite-pulse 2.8s ease-in-out infinite;
 }
 
+.gate-open-btn {
+  animation: gate-nudge 2.6s ease-in-out infinite;
+}
+
+@keyframes gate-nudge {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
 .invite-gate-icon {
   animation: invite-bob 2.4s ease-in-out infinite;
 }
@@ -640,6 +654,7 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   .invite-gate,
   .invite-gate-glow,
   .invite-gate-icon,
+  .gate-open-btn,
   .invite-content.is-open,
   .flip-digit-value {
     animation: none !important;

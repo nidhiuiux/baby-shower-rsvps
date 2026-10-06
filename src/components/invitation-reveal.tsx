@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Heart, Music2, Pause, Sparkles } from "lucide-react";
+import { Heart, MailOpen, Music2, Pause, Sparkles } from "lucide-react";
 import { HtmlLangSync, LanguageSwitch } from "@/components/language-switch";
 import { useCopy } from "@/lib/i18n";
 
@@ -96,30 +96,33 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
       <HtmlLangSync />
       {!opened ? (
         <div
-          // Tapping anywhere opens the invitation; the language switch is the only exception.
+          // The big button is the clear way in; tapping empty space also opens it (not the language switch).
           onClick={(e) => {
             if (!(e.target as HTMLElement).closest('[role="group"]')) void openInvitation();
           }}
           className="invite-gate fixed inset-0 z-[60] flex min-h-dvh cursor-pointer flex-col items-center justify-center gap-8 overflow-y-auto px-5 py-10 text-center"
         >
           <span className="invite-gate-glow" aria-hidden />
-          <button
-            type="button"
-            aria-label={t.gateTitle}
-            aria-describedby="gate-description"
-            className="relative flex w-full max-w-sm cursor-pointer flex-col items-center gap-5 rounded-3xl px-4 py-6 transition-colors hover:bg-white/30"
-          >
+          <div className="relative flex flex-col items-center gap-4">
             <span className="invite-gate-icon icon-medallion size-16" aria-hidden>
               <Sparkles className="size-7" strokeWidth={1.75} />
             </span>
-            <span className="font-display text-4xl leading-snug tracking-tight text-foreground sm:text-5xl">
-              {t.gateTitle}
-            </span>
-            <span id="gate-description" className="section-copy max-w-xs">
+            <h1 className="font-display text-4xl leading-snug tracking-tight text-foreground sm:text-5xl">
+              {t.gateHeading}
+            </h1>
+            <p id="gate-description" className="section-copy max-w-xs text-lg">
               {t.gateSub}
-            </span>
-          </button>
+            </p>
+          </div>
           <LanguageSwitch className="relative z-10" />
+          <button
+            type="button"
+            aria-describedby="gate-description"
+            className="gate-open-btn relative z-10 inline-flex min-h-16 w-full max-w-xs items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-xl font-semibold leading-snug text-primary-foreground shadow-[0_18px_36px_-14px_rgba(47,61,52,0.6)] transition-colors hover:bg-[var(--primary-hover)] focus-visible:outline-offset-4"
+          >
+            <MailOpen className="size-7 shrink-0" strokeWidth={1.75} aria-hidden />
+            {t.gateOpen}
+          </button>
         </div>
       ) : null}
 
