@@ -11,7 +11,8 @@ const en = {
   htmlLang: "en",
   languageLabel: "Language",
 
-  gateTitle: "Tap to open",
+  gateHeading: "You are invited",
+  gateOpen: "Open invitation",
   gateSub: "A little surprise is waiting for you ♡",
   musicPlay: "Play music",
   musicPause: "Pause music",
@@ -119,7 +120,8 @@ const gu: Copy = {
   htmlLang: "gu",
   languageLabel: "ભાષા",
 
-  gateTitle: "આમંત્રણ ખોલવા અહીં સ્પર્શ કરો",
+  gateHeading: "આપ આમંત્રિત છો",
+  gateOpen: "આમંત્રણ ખોલો",
   gateSub: "તમારા માટે એક સુંદર આમંત્રણ રાહ જોઈ રહ્યું છે ♡",
   musicPlay: "સંગીત ચાલુ કરો",
   musicPause: "સંગીત બંધ કરો",

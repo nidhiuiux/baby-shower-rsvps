@@ -19,8 +19,8 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
-      <p className="flex items-center gap-1.5 text-sm font-semibold text-[var(--leaf-deep)]">
-        <Languages className="size-4" aria-hidden />
+      <p className="flex items-center gap-2 text-base font-semibold text-[var(--leaf-deep)]">
+        <Languages className="size-5" aria-hidden />
         <span>{PROMPT}</span>
       </p>
       <div
