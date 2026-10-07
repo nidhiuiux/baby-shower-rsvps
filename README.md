@@ -93,3 +93,26 @@ Keep guest-facing strings in both language entries in `src/lib/copy.ts`.
 
 See [UI_AUDIT.md](UI_AUDIT.md) for the normalization, verification scope, and
 separate backend findings.
+
+## Invitation entrance and effects
+
+The existing opening screen displays a five-second pixel countdown and opens
+at its deadline. Tapping anywhere above the language selector opens it sooner.
+Automatic opening is silent; music can start with the opening tap or the music
+button. Changing languages does not restart the timer.
+
+Reusable components live in `src/components/ui` (the configured shadcn alias
+`@/components/ui`), with CSS in `src/app/globals.css`:
+
+- `soft-gradient-background-animation.tsx`: a slow sage/blush background.
+- `counter-loader.tsx`: the supplied pixel-counter idea, driven by remaining seconds.
+- `blog-cards.tsx`: responsive dotted-leader rows for the existing event details.
+- `spotlight.tsx`: a subtle hover highlight on the existing ceremony card.
+
+These adaptations use the installed React, Tailwind, TypeScript, Framer Motion,
+and Lucide dependencies. No extra providers or image assets are needed. The
+counter uses shared CSS rather than adding styled-components. The full-screen
+glyph portal and extra pixel canvas were omitted to preserve the invitation's
+length and artwork. No sections or demo routes were added. Decorative motion
+is disabled for reduced-motion preferences; the spotlight also stays off on
+touch devices.

@@ -436,71 +436,6 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   animation: invite-gate-in 0.55s ease-out both;
 }
 
-.invite-gate-glow {
-  position: absolute;
-  inset: 18% 12% auto;
-  height: 42%;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(232, 196, 192, 0.45), transparent 68%);
-  pointer-events: none;
-  animation: invite-pulse 2.8s ease-in-out infinite;
-}
-
-/* A large hand icon with a soft pulse: the cue that the whole screen above is tappable. */
-.gate-tap-icon {
-  position: relative;
-  display: flex;
-  width: 6.5rem;
-  height: 6.5rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--secondary);
-  color: var(--primary);
-  box-shadow: 0 18px 40px -20px rgba(47, 61, 52, 0.5);
-}
-
-.gate-tap-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  border: 3px solid var(--primary);
-  opacity: 0;
-  animation: gate-ring 2.2s ease-out infinite;
-}
-
-.gate-tap-hand {
-  animation: gate-tap 2.2s ease-in-out infinite;
-}
-
-@keyframes gate-ring {
-  0% {
-    transform: scale(0.9);
-    opacity: 0.55;
-  }
-  70%,
-  100% {
-    transform: scale(1.45);
-    opacity: 0;
-  }
-}
-
-@keyframes gate-tap {
-  0%,
-  60%,
-  100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-8px);
-  }
-}
-
-.invite-gate-icon {
-  animation: invite-bob 2.4s ease-in-out infinite;
-}
-
 .invite-content.is-sealed {
   display: none;
   visibility: hidden;
@@ -533,28 +468,6 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes invite-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(0.96);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-}
-
-@keyframes invite-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
   }
 }
 
@@ -689,10 +602,6 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   .animate-fade,
   .music-toggle,
   .invite-gate,
-  .invite-gate-glow,
-  .invite-gate-icon,
-  .gate-tap-ring,
-  .gate-tap-hand,
   .invite-content.is-open,
   .flip-digit-value {
     animation: none !important;
@@ -707,4 +616,106 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
 .music-toggle {
   bottom: max(1rem, env(safe-area-inset-bottom));
   right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Invitation entrance: the supplied gradient and counter in the shower palette. */
+.soft-gradient-bg {
+  overflow: hidden;
+  background: #f3f4ec;
+}
+
+.soft-gradient-bg::before,
+.soft-gradient-bg::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(ellipse at 24% 25%, #f1dad5 0%, transparent 52%),
+    radial-gradient(ellipse at 78% 70%, #d5e5d7 0%, transparent 55%),
+    linear-gradient(125deg, #f8f2e9, #eef3eb 50%, #eee3df);
+  animation: soft-gradient-drift var(--gradient-duration, 14s) ease-in-out infinite alternate;
+}
+
+.soft-gradient-bg::after {
+  background: radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, 0.8), transparent 65%);
+  animation-direction: alternate-reverse;
+}
+
+@keyframes soft-gradient-drift {
+  from { transform: translate3d(-4%, -3%, 0) rotate(-5deg) scale(1); }
+  to { transform: translate3d(4%, 3%, 0) rotate(5deg) scale(1.08); }
+}
+
+.gate-opening-card {
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 24px 80px -44px rgba(47, 61, 52, 0.4), inset 0 0 0 6px rgba(255, 255, 255, 0.25);
+}
+
+.gate-open-label {
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.gate-open-target:hover .gate-open-label {
+  background: var(--primary-hover);
+}
+
+.gate-open-target:active .gate-open-label {
+  transform: scale(0.98);
+}
+
+.counter-medallion {
+  display: grid;
+  place-items: center;
+  width: 7.25rem;
+  height: 7.25rem;
+  border: 1px solid rgba(107, 143, 113, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
+}
+
+.counter-loader {
+  display: grid;
+  grid-template-columns: repeat(3, 0.625rem);
+  grid-template-rows: repeat(5, 0.625rem);
+  gap: 0.25rem;
+}
+
+.counter-pixel {
+  border-radius: 0.2rem;
+  background: var(--leaf-soft);
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.counter-pixel[data-lit="true"] {
+  background: var(--leaf-deep);
+  box-shadow: 0 2px 4px rgba(47, 61, 52, 0.12);
+}
+
+.card-spotlight-glow {
+  background: radial-gradient(circle, rgba(232, 196, 192, 0.26), rgba(228, 239, 230, 0.14) 45%, transparent 72%);
+}
+
+@media (max-height: 700px) {
+  .gate-open-target { padding-block: 1rem; }
+  .gate-opening-card { gap: 0.75rem; padding-block: 1.25rem; }
+  .gate-opening-title { font-size: clamp(1.875rem, 8vw, 2rem); }
+  .counter-medallion { width: 5.5rem; height: 5.5rem; }
+  .counter-loader {
+    grid-template-columns: repeat(3, 0.5rem);
+    grid-template-rows: repeat(5, 0.5rem);
+    gap: 0.1875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soft-gradient-bg::before,
+  .soft-gradient-bg::after { animation: none; }
+  .counter-pixel,
+  .gate-open-label { transition: none; }
+  .card-spotlight { display: none; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .card-spotlight { display: none; }
 }
