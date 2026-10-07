@@ -1,7 +1,7 @@
 "use client";
 
 import { Languages } from "lucide-react";
-import { motion, useScroll, useTransform, type MotionStyle } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform, type MotionStyle } from "framer-motion";
 import { useEffect } from "react";
 import { setLang, useCopy } from "@/lib/i18n";
 import type { Lang } from "@/lib/copy";
@@ -58,11 +58,14 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
 export function ScrollLanguageSwitch() {
   const { scrollY } = useScroll();
   const reducedMotion = useReducedMotion();
-  const progress = useTransform(scrollY, (y) => {
+  const target = useTransform(scrollY, (y) => {
     if (reducedMotion) return y > 48 ? 1 : 0;
     const fraction = Math.min(1, Math.max(0, y / 220));
     return fraction * fraction * (3 - 2 * fraction);
   });
+  // A light spring lets the control glide and settle into the corner instead of tracking every scroll tick.
+  const spring = useSpring(target, { stiffness: 190, damping: 28, mass: 0.6, restDelta: 0.001 });
+  const progress = reducedMotion ? target : spring;
 
   return (
     <div className="language-switch-slot mb-6">
