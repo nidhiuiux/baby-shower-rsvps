@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AttendanceChoice } from "@/components/attendance-choice";
+import { GuestStepper } from "@/components/guest-stepper";
+import BlogCard from "@/components/ui/blog-cards";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,17 +13,11 @@ import type { Attendance } from "@/lib/rsvps";
 
 type Status = "idle" | "saving" | "done" | "error";
 
-function parseGuestCount(raw: string): number {
-  const n = Number(raw);
-  if (!raw.trim() || !Number.isFinite(n)) return 1;
-  return Math.min(20, Math.max(1, Math.round(n)));
-}
-
 export function RsvpForm() {
   const { t, lang } = useCopy();
   const [name, setName] = useState("");
   const [attending, setAttending] = useState<Attendance | "">("");
-  const [guests, setGuests] = useState("1");
+  const [guests, setGuests] = useState(1);
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -45,10 +41,7 @@ export function RsvpForm() {
       return;
     }
 
-    const guestCount = attending === "yes" ? parseGuestCount(guests) : 0;
-    if (attending === "yes") {
-      setGuests(String(guestCount));
-    }
+    const guestCount = attending === "yes" ? guests : 0;
 
     setStatus("saving");
     try {
@@ -76,16 +69,23 @@ export function RsvpForm() {
   }
 
   if (status === "done") {
+    const firstName = name.trim().split(" ")[0];
     return (
-      <div ref={thanksRef} tabIndex={-1} role="status" className="animate-rise rounded-xl bg-secondary p-6 text-center outline-none">
-        <p className="section-heading">
+      <div ref={thanksRef} tabIndex={-1} role="status" className="animate-rise rounded-xl bg-secondary p-6 outline-none sm:p-8">
+        <p className="section-heading text-center">
           {attending === "yes" ? t.thanksYes : t.thanksNo}
         </p>
-        <p className="section-copy mt-3 break-words">
-          {attending === "yes"
-            ? t.thanksYesSub(name.trim().split(" ")[0])
-            : t.thanksNoSub(name.trim().split(" ")[0])}
+        <p className="section-copy mt-3 break-words text-center">
+          {attending === "yes" ? t.thanksYesSub(firstName) : t.thanksNoSub(firstName)}
         </p>
+        {/* A printed-card style recap so guests can see exactly what was sent. */}
+        <div className="mt-6 rounded-xl border border-border bg-white/70 p-5">
+          <p className="eyebrow mb-4">{t.recapTitle}</p>
+          <BlogCard variant="ledger" title={t.recapName} date={name.trim()} />
+          <BlogCard variant="ledger" title={t.recapAttending} date={attending === "yes" ? t.formYes : t.formNo} />
+          {attending === "yes" && <BlogCard variant="ledger" title={t.recapGuests} date={String(guests)} />}
+          {note.trim() && <BlogCard variant="ledger" title={t.recapNote} description={<span className="whitespace-pre-wrap break-words">{note.trim()}</span>} />}
+        </div>
       </div>
     );
   }
@@ -120,26 +120,15 @@ export function RsvpForm() {
         />
 
         {attending === "yes" && (
-          <div className="space-y-2 animate-fade">
-            <Label htmlFor="guests" className="text-[var(--ink)]">
-              {t.formGuests}
-            </Label>
-            <Input
+          <div className="animate-fade">
+            <GuestStepper
               id="guests"
-              name="guests"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={20}
+              label={t.formGuests}
               value={guests}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v === "" || /^\d{0,2}$/.test(v)) {
-                  setGuests(v);
-                }
-              }}
-              onBlur={() => setGuests(String(parseGuestCount(guests)))}
-              className="w-32"
+              onChange={setGuests}
+              fewerLabel={t.guestsFewer}
+              moreLabel={t.guestsMore}
+              describe={t.guestsCount}
             />
           </div>
         )}

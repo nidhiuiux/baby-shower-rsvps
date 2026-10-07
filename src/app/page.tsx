@@ -13,6 +13,8 @@ import { RsvpForm } from "@/components/rsvp-form";
 import { ShowerDetails } from "@/components/shower-details";
 import { ShowerTicket } from "@/components/shower-ticket";
 import { TwinklingStars } from "@/components/twinkling-stars";
+import { BgradientAnim } from "@/components/ui/soft-gradient-background-animation";
+import { Spotlight } from "@/components/ui/spotlight";
 import { useCopy } from "@/lib/i18n";
 
 export default function Home() {
@@ -20,6 +22,8 @@ export default function Home() {
   return (
     <InvitationReveal>
       <div className="shower-shell flex flex-1 flex-col">
+        {/* The opening screen's gradient carries on behind the whole invitation. */}
+        <BgradientAnim position="fixed" animationDuration={22} className="-z-10" />
         <TwinklingStars />
         <span className="petal petal-1" aria-hidden />
         <span className="petal petal-2" aria-hidden />
@@ -74,8 +78,9 @@ export default function Home() {
           <section
             id="rsvp"
             aria-labelledby="rsvp-heading"
-            className="rsvp-card content-width section-space surface-card panel-padding"
+            className="rsvp-card has-spotlight content-width section-space surface-card panel-padding"
           >
+            <Spotlight size={360} />
             <h2 id="rsvp-heading" className="section-heading mb-2 text-center">
               {t.rsvpHeading}
             </h2>

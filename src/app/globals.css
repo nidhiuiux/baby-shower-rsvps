@@ -733,6 +733,60 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
   box-shadow: 0 2px 4px rgba(47, 61, 52, 0.12);
 }
 
+/* Guest count: big − / + targets around the gate's pixel digits. */
+.guest-stepper-button {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--primary);
+  box-shadow: 0 8px 20px -14px rgba(47, 61, 52, 0.5);
+  transition: background-color 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+.guest-stepper-button:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--secondary);
+}
+
+.guest-stepper-button:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.guest-stepper-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.guest-stepper-value {
+  display: grid;
+  place-items: center;
+  min-width: 6rem;
+  height: 4.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(107, 143, 113, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.counter-loader-sm {
+  grid-template-columns: repeat(3, 0.5rem);
+  grid-template-rows: repeat(5, 0.5rem);
+  gap: 0.1875rem;
+}
+
+/* Cards with a pointer spotlight keep their content above the glow. */
+.has-spotlight {
+  position: relative;
+}
+
+.has-spotlight > :not(.card-spotlight) {
+  position: relative;
+}
+
 .card-spotlight-glow {
   background: radial-gradient(circle, rgba(232, 196, 192, 0.26), rgba(228, 239, 230, 0.14) 45%, transparent 72%);
 }
