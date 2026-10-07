@@ -444,7 +444,50 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
 }
 
 .invite-content.is-open {
+  /* A transform here would anchor fixed controls to the scrolling invitation. */
   animation: invite-reveal 0.65s ease-out both;
+}
+
+/* Reserve the original space so docking never shifts the invitation. */
+.language-switch-slot {
+  height: 5.375rem;
+}
+
+.language-switch-floating {
+  --language-dock-progress: 0;
+  --language-origin-top: 4.5rem;
+  --language-edge-top: max(1rem, env(safe-area-inset-top));
+  --language-edge-right: max(1rem, env(safe-area-inset-right));
+  position: fixed;
+  z-index: 50;
+  top: calc(var(--language-origin-top) * (1 - var(--language-dock-progress)) + var(--language-edge-top) * var(--language-dock-progress));
+  right: calc(50% * (1 - var(--language-dock-progress)) + var(--language-edge-right) * var(--language-dock-progress));
+  width: max-content;
+  transform: translate3d(calc(50% * (1 - var(--language-dock-progress))), 0, 0);
+}
+
+.language-switch-floating .language-switch-prompt {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: calc(50% * (1 - var(--language-dock-progress)));
+  white-space: nowrap;
+  opacity: clamp(0, calc(1 - var(--language-dock-progress) * 3), 1);
+  transform: translate(calc(50% * (1 - var(--language-dock-progress))), calc(-0.5rem * var(--language-dock-progress)));
+  pointer-events: none;
+}
+
+.language-switch-floating .language-choice {
+  min-width: calc(6.5rem - 1rem * var(--language-dock-progress));
+  padding-inline: calc(1.25rem - 0.25rem * var(--language-dock-progress));
+  font-size: calc(1rem - 0.125rem * var(--language-dock-progress));
+}
+
+@media (min-width: 640px) {
+  .language-switch-floating {
+    --language-origin-top: 6rem;
+    --language-edge-top: max(1.25rem, env(safe-area-inset-top));
+    --language-edge-right: max(1.25rem, env(safe-area-inset-right));
+  }
 }
 
 .music-toggle {
@@ -463,11 +506,9 @@ html[lang="gu"] :is(h1, h2, .font-display, .font-heading) {
 @keyframes invite-reveal {
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
