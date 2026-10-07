@@ -2,6 +2,7 @@
 
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
+import { Spotlight } from "@/components/ui/spotlight";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
 import { Video } from "lucide-react";
@@ -15,8 +16,9 @@ export function LiveStream() {
     <Reveal>
       <section
         aria-labelledby="live-stream"
-        className="content-width section-space surface-card panel-padding text-center"
+        className="has-spotlight content-width section-space surface-card panel-padding text-center"
       >
+        <Spotlight size={300} />
         <span className="icon-medallion mx-auto">
           <Video className="size-6" strokeWidth={1.5} aria-hidden />
         </span>

@@ -3,6 +3,7 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import { DirectionsMenu } from "@/components/directions-menu";
 import BlogCard from "@/components/ui/blog-cards";
+import { Spotlight } from "@/components/ui/spotlight";
 import { useCopy } from "@/lib/i18n";
 
 export function ShowerDetails() {
@@ -13,24 +14,27 @@ export function ShowerDetails() {
       <h2 id="details-heading" className="section-heading mb-6 text-center">
         {t.detailsHeading}
       </h2>
-      <div className="surface-card panel-padding divide-y divide-border">
-        <BlogCard
-          title={t.detailWhen}
-          date={t.detailWhenDate}
-          icon={<CalendarDays className="size-5" strokeWidth={1.5} />}
-          description={<p>{t.detailWhenTime}</p>}
-        />
-        <BlogCard
-          title={t.detailWhere}
-          date="124 Crain Road"
-          icon={<MapPin className="size-5" strokeWidth={1.5} />}
-          description={
-            <>
-              <p>Paramus, NJ 07652</p>
-              <DirectionsMenu />
-            </>
-          }
-        />
+      <div className="surface-card panel-padding has-spotlight">
+        <Spotlight size={320} />
+        <div className="divide-y divide-border">
+          <BlogCard
+            title={t.detailWhen}
+            date={t.detailWhenDate}
+            icon={<CalendarDays className="size-5" strokeWidth={1.5} />}
+            description={<p>{t.detailWhenTime}</p>}
+          />
+          <BlogCard
+            title={t.detailWhere}
+            date="124 Crain Road"
+            icon={<MapPin className="size-5" strokeWidth={1.5} />}
+            description={
+              <>
+                <p>Paramus, NJ 07652</p>
+                <DirectionsMenu />
+              </>
+            }
+          />
+        </div>
       </div>
     </section>
   );

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { AttendanceChoice } from "@/components/attendance-choice";
+import { GuestStepper } from "@/components/guest-stepper";
+import BlogCard from "@/components/ui/blog-cards";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +21,6 @@ type EmailStatus = {
   notifyEmail: string;
   configured: boolean;
 };
-
-function parseGuestCount(raw: string): number {
-  const n = Number(raw);
-  if (!raw.trim() || !Number.isFinite(n)) return 1;
-  return Math.min(20, Math.max(1, Math.round(n)));
-}
 
 function buildSummary(list: Rsvp[]): Summary {
   const yes = list.filter((r) => r.attending === "yes");
@@ -45,7 +41,7 @@ export function HostDashboard() {
 
   const [manualName, setManualName] = useState("");
   const [manualAttending, setManualAttending] = useState<Attendance>("yes");
-  const [manualGuests, setManualGuests] = useState("1");
+  const [manualGuests, setManualGuests] = useState(1);
   const [manualNote, setManualNote] = useState("");
   const [savingManual, setSavingManual] = useState(false);
   const [manualError, setManualError] = useState("");
@@ -96,10 +92,7 @@ export function HostDashboard() {
       return;
     }
     const guestCount =
-      manualAttending === "yes" ? parseGuestCount(manualGuests) : 0;
-    if (manualAttending === "yes") {
-      setManualGuests(String(guestCount));
-    }
+      manualAttending === "yes" ? manualGuests : 0;
 
     setSavingManual(true);
     try {
@@ -134,7 +127,7 @@ export function HostDashboard() {
       setAnnouncement(`Added ${added.name}.`);
       setManualName("");
       setManualNote("");
-      setManualGuests("1");
+      setManualGuests(1);
       setManualAttending("yes");
     } catch {
       setManualError("Could not add RSVP. Please try again.");
@@ -275,25 +268,15 @@ export function HostDashboard() {
             noLabel="Can't make it"
           />
           {manualAttending === "yes" && (
-            <div className="space-y-2">
-              <Label htmlFor="manual-guests">Number of guests (including them)</Label>
-              <Input
-                id="manual-guests"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={20}
-                value={manualGuests}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === "" || /^\d{0,2}$/.test(v)) {
-                    setManualGuests(v);
-                  }
-                }}
-                onBlur={() => setManualGuests(String(parseGuestCount(manualGuests)))}
-                className="w-32"
-              />
-            </div>
+            <GuestStepper
+              id="manual-guests"
+              label="Number of guests (including them)"
+              value={manualGuests}
+              onChange={setManualGuests}
+              fewerLabel="One fewer guest"
+              moreLabel="One more guest"
+              describe={(n) => `${n} ${n === 1 ? "guest" : "guests"}`}
+            />
           )}
           <div className="space-y-2">
             <Label htmlFor="manual-note">
@@ -334,40 +317,31 @@ export function HostDashboard() {
           No RSVPs yet. Add people manually above, or share your RSVP link.
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="surface-card panel-padding divide-y divide-border">
           {rsvps.map((rsvp) => (
-            <li
-              key={rsvp.id}
-              className="surface-card p-5 sm:p-6"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1 break-words">
-                  <p className="font-semibold text-[var(--ink)]">{rsvp.name}</p>
-                  <p
-                    className={`mt-1 text-sm font-medium ${
-                      rsvp.attending === "yes"
-                        ? "text-[var(--leaf-deep)]"
-                        : "text-[var(--ink-muted)]"
-                    }`}
-                  >
-                    {rsvp.attending === "yes"
-                      ? `Coming · ${rsvp.guests} guest${rsvp.guests === 1 ? "" : "s"}`
-                      : "Can't make it"}
-                  </p>
-                  {rsvp.note && (
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink-soft)]">{rsvp.note}</p>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  aria-label={`Remove RSVP for ${rsvp.name}`}
-                  onClick={() => void removeRsvp(rsvp.id)}
-                >
-                  Remove
-                </Button>
-              </div>
+            <li key={rsvp.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-start">
+              <BlogCard
+                variant="ledger"
+                strongTitle
+                className="flex-1 py-0!"
+                title={rsvp.name}
+                date={
+                  rsvp.attending === "yes"
+                    ? `Coming · ${rsvp.guests} guest${rsvp.guests === 1 ? "" : "s"}`
+                    : <span className="text-muted-foreground">Can&apos;t make it</span>
+                }
+                description={rsvp.note ? <span className="whitespace-pre-wrap break-words">{rsvp.note}</span> : undefined}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-end sm:self-start"
+                aria-label={`Remove RSVP for ${rsvp.name}`}
+                onClick={() => void removeRsvp(rsvp.id)}
+              >
+                Remove
+              </Button>
             </li>
           ))}
         </ul>
@@ -384,7 +358,7 @@ export function HostDashboard() {
             setManualError("");
             setManualName("");
             setManualNote("");
-            setManualGuests("1");
+            setManualGuests(1);
             setManualAttending("yes");
             setAnnouncement("");
             setEmailStatus(null);
