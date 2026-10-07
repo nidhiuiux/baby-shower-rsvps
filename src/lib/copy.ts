@@ -13,6 +13,8 @@ const en = {
 
   gateHeading: "You are invited",
   gateOpen: "Open invitation",
+  gateCountdown: (seconds: number) => `Opening in ${seconds} ${seconds === 1 ? "second" : "seconds"}…`,
+  gateAutoOpen: "Opens automatically after 5 seconds. Tap to open now.",
   gateSub: "A little surprise is waiting for you ♡",
   musicPlay: "Play music",
   musicPause: "Pause music",
@@ -122,6 +124,8 @@ const gu: Copy = {
 
   gateHeading: "આપ આમંત્રિત છો",
   gateOpen: "આમંત્રણ ખોલો",
+  gateCountdown: (seconds: number) => `${seconds} સેકન્ડમાં આમંત્રણ ખુલશે…`,
+  gateAutoOpen: "આમંત્રણ 5 સેકન્ડ પછી આપમેળે ખુલશે. હમણાં ખોલવા માટે ટૅપ કરો.",
   gateSub: "તમારા માટે એક સુંદર આમંત્રણ રાહ જોઈ રહ્યું છે ♡",
   musicPlay: "સંગીત ચાલુ કરો",
   musicPause: "સંગીત બંધ કરો",

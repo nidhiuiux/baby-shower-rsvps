@@ -6,7 +6,7 @@ import { KrishnaOnMoon } from "@/components/devotional-art";
 import { CelebrateScroll } from "@/components/celebrate-scroll";
 import { Countdown } from "@/components/countdown";
 import { InvitationReveal } from "@/components/invitation-reveal";
-import { LanguageSwitch } from "@/components/language-switch";
+import { ScrollLanguageSwitch } from "@/components/language-switch";
 import { InviteActions } from "@/components/invite-actions";
 import { LiveStream } from "@/components/live-stream";
 import { RsvpForm } from "@/components/rsvp-form";
@@ -27,9 +27,7 @@ export default function Home() {
         <FloatingDoodles />
 
         <main className="page-container flex flex-col">
-          <div className="mb-6 flex justify-center">
-            <LanguageSwitch />
-          </div>
+          <ScrollLanguageSwitch />
 
           <header className="animate-rise text-center">
             <KrishnaOnMoon

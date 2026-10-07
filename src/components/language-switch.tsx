@@ -1,9 +1,11 @@
 "use client";
 
 import { Languages } from "lucide-react";
+import { motion, useScroll, useTransform, type MotionStyle } from "framer-motion";
 import { useEffect } from "react";
 import { setLang, useCopy } from "@/lib/i18n";
 import type { Lang } from "@/lib/copy";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 const options: { value: Lang; label: string; lang: string }[] = [
   { value: "en", label: "English", lang: "en" },
@@ -19,7 +21,7 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
-      <p className="flex items-center gap-2 text-base font-semibold text-[var(--leaf-deep)]">
+      <p className="language-switch-prompt flex items-center gap-2 text-base font-semibold text-[var(--leaf-deep)]">
         <Languages className="size-5" aria-hidden />
         <span>{PROMPT}</span>
       </p>
@@ -37,7 +39,7 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
               lang={option.lang}
               aria-pressed={selected}
               onClick={() => setLang(option.value)}
-              className={`min-h-11 min-w-[6.5rem] rounded-full px-5 text-base font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50 ${
+              className={`language-choice min-h-11 min-w-[6.5rem] rounded-full px-5 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--leaf)]/50 ${
                 selected
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-[var(--ink-soft)] hover:text-[var(--ink)]"
@@ -48,6 +50,28 @@ export function LanguageSwitch({ className = "" }: { className?: string }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/** One persistent control follows the scroll, preserving focus and the chosen language. */
+export function ScrollLanguageSwitch() {
+  const { scrollY } = useScroll();
+  const reducedMotion = useReducedMotion();
+  const progress = useTransform(scrollY, (y) => {
+    if (reducedMotion) return y > 48 ? 1 : 0;
+    const fraction = Math.min(1, Math.max(0, y / 220));
+    return fraction * fraction * (3 - 2 * fraction);
+  });
+
+  return (
+    <div className="language-switch-slot mb-6">
+      <motion.div
+        className="language-switch-floating"
+        style={{ "--language-dock-progress": progress } as MotionStyle}
+      >
+        <LanguageSwitch />
+      </motion.div>
     </div>
   );
 }

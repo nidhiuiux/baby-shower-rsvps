@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Heart, Music2, Pause, Pointer } from "lucide-react";
 import { HtmlLangSync, LanguageSwitch } from "@/components/language-switch";
+import CounterLoading from "@/components/ui/counter-loader";
+import { BgradientAnim } from "@/components/ui/soft-gradient-background-animation";
 import { useCopy } from "@/lib/i18n";
 
 const AUDIO_SRC = "/khamma.mp3";
 const VOLUME = 0.4;
+const OPEN_DELAY_MS = 5_000;
 
 type InvitationRevealProps = {
   children: ReactNode;
@@ -16,15 +19,17 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
   const { t } = useCopy();
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(5);
+  const openedRef = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const wantPlayRef = useRef(true);
+  const wantPlayRef = useRef(false);
 
   useEffect(() => {
     const audio = new Audio(AUDIO_SRC);
     audio.loop = true;
     audio.volume = VOLUME;
-    audio.preload = "auto";
+    audio.preload = "none";
     audioRef.current = audio;
 
     return () => {
@@ -55,21 +60,37 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [opened]);
 
-  async function openInvitation() {
-    if (opened) return;
+  const openInvitation = useCallback(async (withMusic: boolean) => {
+    // A tap and the deadline can arrive together; reveal only once.
+    if (openedRef.current) return;
+    openedRef.current = true;
+    wantPlayRef.current = withMusic;
     setOpened(true);
-    wantPlayRef.current = true;
 
+    // Timed opening is silent. Audio starts only from a guest's tap.
     const audio = audioRef.current;
-    if (!audio) return;
-
+    if (!withMusic || !audio) return;
     try {
       await audio.play();
       setPlaying(true);
     } catch {
+      wantPlayRef.current = false;
       setPlaying(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (opened) return;
+    const deadline = performance.now() + OPEN_DELAY_MS;
+    const tick = window.setInterval(() => {
+      setRemainingSeconds(Math.max(1, Math.ceil((deadline - performance.now()) / 1_000)));
+    }, 100);
+    const timer = window.setTimeout(() => void openInvitation(false), OPEN_DELAY_MS);
+    return () => {
+      window.clearInterval(tick);
+      window.clearTimeout(timer);
+    };
+  }, [opened, openInvitation]);
 
   async function toggleMusic() {
     const audio = audioRef.current;
@@ -87,6 +108,7 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
       await audio.play();
       setPlaying(true);
     } catch {
+      wantPlayRef.current = false;
       setPlaying(false);
     }
   }
@@ -96,27 +118,37 @@ export function InvitationReveal({ children }: InvitationRevealProps) {
       <HtmlLangSync />
       {!opened ? (
         <div className="invite-gate fixed inset-0 z-[60] flex min-h-dvh flex-col overflow-y-auto">
-          <span className="invite-gate-glow" aria-hidden />
-          {/* Everything above the language choice is one big target that opens the invitation. */}
+          <BgradientAnim animationDuration={14} />
+          {/* Everything above the language choice opens immediately when tapped. */}
           <button
             type="button"
-            onClick={() => void openInvitation()}
+            onClick={() => void openInvitation(true)}
             aria-label={t.gateOpen}
-            aria-describedby="gate-description"
-            className="relative z-10 flex w-full flex-1 cursor-pointer flex-col items-center justify-center gap-6 px-5 pb-8 pt-12 text-center focus-visible:outline-offset-[-8px]"
+            aria-describedby="gate-description gate-timing"
+            className="gate-open-target relative z-10 flex w-full flex-1 cursor-pointer flex-col items-center justify-center px-5 py-8 text-center focus-visible:outline-offset-[-8px] sm:py-10"
           >
-            <span className="gate-tap-icon" aria-hidden>
-              <span className="gate-tap-ring" />
-              <Pointer className="gate-tap-hand size-14" strokeWidth={1.6} />
-            </span>
-            <span className="block font-display text-4xl leading-snug tracking-tight text-foreground sm:text-5xl">
-              {t.gateHeading}
-            </span>
-            <span id="gate-description" className="section-copy block max-w-xs text-lg">
-              {t.gateSub}
+            <span className="gate-opening-card flex w-full max-w-md flex-col items-center gap-5 rounded-[2rem] border border-white/80 px-6 py-8 sm:px-10 sm:py-10">
+              <span className="eyebrow">{t.brand}</span>
+              <span className="counter-medallion">
+                <CounterLoading value={remainingSeconds} />
+              </span>
+              <span className="gate-opening-title block font-display text-4xl leading-snug tracking-tight text-foreground sm:text-5xl">
+                {t.gateHeading}
+              </span>
+              <span id="gate-description" className="section-copy block max-w-xs">
+                {t.gateSub}
+              </span>
+              <span className="gate-open-label inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">
+                <Pointer className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                {t.gateOpen}
+              </span>
+              <span aria-hidden="true" className="text-sm leading-relaxed text-muted-foreground">
+                {t.gateCountdown(remainingSeconds)}
+              </span>
+              <span id="gate-timing" className="sr-only">{t.gateAutoOpen}</span>
             </span>
           </button>
-          <div className="relative z-10 flex justify-center border-t border-border/70 px-5 pb-10 pt-6">
+          <div className="relative z-10 flex justify-center px-5 pb-8 pt-2 sm:pb-10">
             <LanguageSwitch />
           </div>
         </div>

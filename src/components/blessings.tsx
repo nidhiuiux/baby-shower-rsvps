@@ -1,6 +1,7 @@
 "use client";
 
 import { BabyRadha, KabirSaheb, KrishnaWithFlute, LotusDivider, MotherToBe } from "@/components/devotional-art";
+import { Spotlight } from "@/components/ui/spotlight";
 import { Reveal } from "@/components/reveal";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
@@ -47,10 +48,11 @@ export function ShrimantSanskar() {
     <Reveal>
       <section
         aria-labelledby="shrimant-sanskar"
-        className="content-width section-space surface-card panel-padding text-center sm:grid sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center sm:gap-8 sm:text-left"
+        className="content-width section-space surface-card panel-padding relative text-center sm:grid sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center sm:gap-8 sm:text-left"
       >
-        <MotherToBe sizes="(min-width: 640px) 208px, 176px" className="mx-auto h-auto w-44 sm:w-52" />
-        <div className="mt-5 sm:mt-0">
+        <Spotlight size={320} />
+        <MotherToBe sizes="(min-width: 640px) 208px, 176px" className="relative mx-auto h-auto w-44 sm:w-52" />
+        <div className="relative mt-5 sm:mt-0">
           <p className="eyebrow">
             {t.shrimantEyebrow}
           </p>
