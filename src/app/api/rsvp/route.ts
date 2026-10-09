@@ -1,91 +1,75 @@
 import { NextResponse } from "next/server";
 import { event } from "@/lib/event";
 import { isHostPin } from "@/lib/host-auth";
-import { sendRsvpNotification } from "@/lib/notify";
+import { sendRsvpConfirmation } from "@/lib/notify";
+import { copy } from "@/lib/copy";
+import { validateRsvpInput } from "@/lib/rsvp-model";
 import {
   addRsvp,
   deleteRsvp,
   listRsvps,
   summarize,
-  type Attendance,
+  updateRsvp,
 } from "@/lib/rsvps";
 
 /** Listing reads RSVPs back from Resend, which can take a few seconds when rate-limited. */
 export const maxDuration = 60;
 
-export async function POST(request: Request) {
-  let body: unknown;
+async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
-  }
+    const body: unknown = await request.json();
+    return body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : null;
+  } catch { return null; }
+}
 
-  if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
-  }
-
-  const { name, attending, guests, note, pin } = body as Record<string, unknown>;
-
-  const isManual = typeof pin === "string" && pin.length > 0;
-  if (isManual && !isHostPin(pin)) {
+export async function POST(request: Request) {
+  const body = await readBody(request);
+  if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  const isManual = request.headers.has("x-host-pin") || "pin" in body;
+  if (isManual && !isHostPin(request.headers.get("x-host-pin") ?? body.pin)) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
-
-  const trimmedName = typeof name === "string" ? name.trim() : "";
-  if (!trimmedName || trimmedName.length > 80) {
-    return NextResponse.json(
-      { error: "Please enter a name." },
-      { status: 400 },
-    );
+  const parsed = validateRsvpInput(body, !isManual);
+  if (parsed.error) return NextResponse.json({ error: copy.en[parsed.error], errorCode: parsed.error }, { status: 400 });
+  if (isManual && body.sendConfirmation === true && !parsed.value.email) {
+    return NextResponse.json({ error: "Add an email address before sending a confirmation." }, { status: 400 });
   }
-
-  if (attending !== "yes" && attending !== "no") {
-    return NextResponse.json(
-      { error: "Please choose Yes or No." },
-      { status: 400 },
-    );
+  try {
+    const saved = await addRsvp(parsed.value, isManual ? "manual" : "guest");
+    const confirmationRequested = !isManual || body.sendConfirmation === true;
+    const confirmation = confirmationRequested ? await sendRsvpConfirmation(saved.rsvp) : null;
+    return NextResponse.json({ ok: true, ...saved, confirmationRequested, confirmationSent: confirmation?.sent ?? false });
+  } catch (error) {
+    console.error("Could not save RSVP:", error);
+    return NextResponse.json({ error: "Could not save RSVP. Please try again." }, { status: 503 });
   }
+}
 
-  const guestCount =
-    attending === "yes"
-      ? Math.min(20, Math.max(1, Number(guests) || 1))
-      : 0;
-
-  const trimmedNote =
-    typeof note === "string" ? note.trim().slice(0, 500) : "";
-
-  const rsvp = await addRsvp({
-    name: trimmedName,
-    attending: attending as Attendance,
-    guests: guestCount,
-    note: trimmedNote,
-  });
-
-  const notify = await sendRsvpNotification(
-    rsvp,
-    isManual ? "manual" : "guest",
-  );
-  if (!notify.sent && process.env.VERCEL) {
-    return NextResponse.json(
-      { error: "Could not save RSVP. Please try again." },
-      { status: 502 },
-    );
+export async function PATCH(request: Request) {
+  const body = await readBody(request);
+  if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  if (!isHostPin(request.headers.get("x-host-pin") ?? body.pin)) {
+    return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
-  if (!notify.sent) {
-    console.warn("RSVP saved, but email was not sent:", notify.reason);
+  if (typeof body.id !== "string" || !body.id) return NextResponse.json({ error: "Missing RSVP id." }, { status: 400 });
+  try {
+    const existing = (await listRsvps()).find(row => row.id === body.id);
+    if (!existing) return NextResponse.json({ error: "RSVP not found." }, { status: 404 });
+    if (typeof body.updatedAt === "string" && body.updatedAt !== existing.updatedAt) {
+      return NextResponse.json({ error: "This RSVP changed since you opened it. Reload the guest list before editing." }, { status: 409 });
+    }
+    const parsed = validateRsvpInput({ ...existing, ...body }, false);
+    if (parsed.error) return NextResponse.json({ error: copy.en[parsed.error] }, { status: 400 });
+    if (body.sendConfirmation === true && !parsed.value.email) {
+      return NextResponse.json({ error: "Add an email address before sending a confirmation." }, { status: 400 });
+    }
+    const saved = await updateRsvp(existing, parsed.value);
+    const confirmation = body.sendConfirmation === true ? await sendRsvpConfirmation(saved.rsvp) : null;
+    return NextResponse.json({ ok: true, ...saved, confirmationRequested: body.sendConfirmation === true, confirmationSent: confirmation?.sent ?? false });
+  } catch (error) {
+    console.error("Could not update RSVP:", error);
+    return NextResponse.json({ error: "Could not save the changes. Please try again." }, { status: 503 });
   }
-
-  if (isManual) {
-    // Return only the new row; client merges into the open list instantly.
-    return NextResponse.json({
-      ok: true,
-      rsvp,
-      emailSent: notify.sent,
-    });
-  }
-
-  return NextResponse.json({ ok: true, rsvp, emailSent: notify.sent });
 }
 
 export async function GET(request: Request) {
