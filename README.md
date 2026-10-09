@@ -97,10 +97,14 @@ RSVPs on Vercel are stored via Resend email records (same inbox as notifications
 | `npm start` | Run the production build |
 | `npm test` | Validate fields, email templates, persistence, legacy edits and delivery failures using isolated data and mocked email transport |
 
-**Guest confirmation emails need a verified sender.** Until `NOTIFY_FROM_EMAIL`
-uses an address on a domain verified in Resend, guest confirmations are switched
-off automatically (the host email still goes out, and the guest's success screen
-simply says the reply is saved). Set it in Vercel and redeploy to turn them on.
+**Guest confirmation emails** go out through your Gmail when `GMAIL_USER` and
+`GMAIL_APP_PASSWORD` are set (create the app password at
+https://myaccount.google.com/apppasswords; 2-Step Verification must be on). A
+Resend sender on a verified domain (`NOTIFY_FROM_EMAIL`) also works. With
+neither, guest confirmations switch off automatically: the host email still goes
+out and the guest's success screen simply says the reply is saved. Add the
+variables in Vercel and redeploy to turn them on. The host email always goes
+through Resend, because on Vercel it is also the stored copy of each RSVP.
 
 What the emails include:
 - **Guest (English or Gujarati, attending):** Krishna artwork and साहेब बंदगी साहेब
