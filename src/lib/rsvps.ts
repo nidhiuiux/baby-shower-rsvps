@@ -2,23 +2,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { Resend } from "resend";
 import { event } from "@/lib/event";
+import { sendRsvpNotification } from "@/lib/notify";
+import { normalizeRsvp, RECORD_START, RECORD_END, type Attendance, type Rsvp, type RsvpInput } from "@/lib/rsvp-model";
+import type { RsvpSource } from "@/lib/rsvp-emails";
+export type { Attendance, Rsvp } from "@/lib/rsvp-model";
 
-export type Attendance = "yes" | "no";
-
-export type Rsvp = {
-  id: string;
-  name: string;
-  attending: Attendance;
-  guests: number;
-  note: string;
-  createdAt: string;
-};
-
-const dataDir = path.join(process.cwd(), "data");
+const dataDir = process.env.RSVP_DATA_DIR || path.join(process.cwd(), "data");
 const dataFile = path.join(dataDir, "rsvps.json");
 
-const RECORD_START = "---RSVP_JSON---";
-const RECORD_END = "---END---";
 const DELETE_START = "---RSVP_DELETE---";
 
 function shouldUseResendStore(): boolean {
@@ -38,38 +29,21 @@ function resendClient(): Resend | null {
 async function ensureStore(): Promise<void> {
   await fs.mkdir(dataDir, { recursive: true });
   try {
-    await fs.access(dataFile);
-  } catch {
-    await fs.writeFile(dataFile, "[]", "utf8");
+    await fs.writeFile(dataFile, "[]", { encoding: "utf8", flag: "wx" });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
   }
-}
-
-function normalizeGuests(attending: Attendance, guests: unknown): number {
-  if (attending === "no") return 0;
-  if (typeof guests === "number" && Number.isFinite(guests)) {
-    return Math.min(20, Math.max(1, Math.round(guests)));
-  }
-  return 1;
-}
-
-function normalizeRsvp(row: Partial<Rsvp>): Rsvp {
-  const attending: Attendance = row.attending === "no" ? "no" : "yes";
-  return {
-    id: String(row.id ?? crypto.randomUUID()),
-    name: String(row.name ?? ""),
-    attending,
-    guests: normalizeGuests(attending, row.guests),
-    note: String(row.note ?? ""),
-    createdAt: String(row.createdAt ?? new Date().toISOString()),
-  };
 }
 
 function extractJsonBlock(text: string, start: string): unknown | null {
-  const from = text.indexOf(start);
+  // The final standalone marker is ours; a guest's note may contain marker-like text.
+  const marker = `\n${start}\n`;
+  const source = `\n${text}`;
+  const from = source.lastIndexOf(marker);
   if (from === -1) return null;
-  const jsonStart = from + start.length;
-  const end = text.indexOf(RECORD_END, jsonStart);
-  const raw = (end === -1 ? text.slice(jsonStart) : text.slice(jsonStart, end)).trim();
+  const jsonStart = from + marker.length;
+  const end = source.indexOf(`\n${RECORD_END}`, jsonStart);
+  const raw = (end === -1 ? source.slice(jsonStart) : source.slice(jsonStart, end)).trim();
   try {
     return JSON.parse(raw) as unknown;
   } catch {
@@ -115,6 +89,7 @@ const FETCH_CONCURRENCY = 2;
 const parsedEmails = new Map<string, Rsvp | null>();
 /** Ids deleted on this instance, covers Resend's short lag before the marker email appears in the list. */
 const recentlyDeleted = new Set<string>();
+const recentlySaved = new Map<string, Rsvp>();
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -167,13 +142,13 @@ async function parseEmail(
 
 async function listFromResend(): Promise<Rsvp[]> {
   const resend = resendClient();
-  if (!resend) return [];
+  if (!resend) throw new Error("Resend storage is not configured.");
 
   const deleted = new Set<string>(recentlyDeleted);
   const candidates: { id: string; subject?: string | null; created_at: string }[] = [];
   let after: string | undefined;
 
-  for (let page = 0; page < 10; page += 1) {
+  for (;;) {
     const data = await resendCall(() =>
       resend.emails.list(after ? { limit: 100, after } : { limit: 100 }),
     );
@@ -186,7 +161,8 @@ async function listFromResend(): Promise<Rsvp[]> {
         if (id) deleted.add(id);
         continue;
       }
-      candidates.push(item);
+      // Guest confirmations never contain storage records and need not be fetched.
+      if (/^RSVP (Yes|No|Update):/.test(subject)) candidates.push(item);
     }
 
     if (!data.has_more || data.data.length === 0) break;
@@ -201,10 +177,17 @@ async function listFromResend(): Promise<Rsvp[]> {
     while (next < candidates.length) {
       const item = candidates[next++];
       const rsvp = await parseEmail(resend, item);
-      if (rsvp && !records.has(rsvp.id)) records.set(rsvp.id, rsvp);
+      const previous = rsvp ? records.get(rsvp.id) : undefined;
+      if (rsvp && (!previous || rsvp.updatedAt > previous.updatedAt)) records.set(rsvp.id, rsvp);
     }
   };
   await Promise.all(Array.from({ length: FETCH_CONCURRENCY }, worker));
+
+  for (const [id, rsvp] of recentlySaved) {
+    const stored = records.get(id);
+    if (!stored || rsvp.updatedAt > stored.updatedAt) records.set(id, rsvp);
+    else recentlySaved.delete(id);
+  }
 
   return [...records.values()]
     .filter((r) => !deleted.has(r.id))
@@ -214,13 +197,21 @@ async function listFromResend(): Promise<Rsvp[]> {
 async function listFromFile(): Promise<Rsvp[]> {
   await ensureStore();
   const raw = await fs.readFile(dataFile, "utf8");
-  try {
-    const parsed = JSON.parse(raw) as Array<Partial<Rsvp>>;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map((row) => normalizeRsvp(row));
-  } catch {
-    return [];
-  }
+  const parsed = JSON.parse(raw) as Array<Partial<Rsvp>>;
+  if (!Array.isArray(parsed)) throw new Error("Invalid RSVP store.");
+  return parsed.map((row) => normalizeRsvp(row));
+}
+
+let fileWrites: Promise<unknown> = Promise.resolve();
+function mutateFileStore(update: (rows: Rsvp[]) => Rsvp[]) {
+  const write = fileWrites.then(async () => {
+    const rows = update(await listFromFile());
+    const temporary = `${dataFile}.${crypto.randomUUID()}.tmp`;
+    await fs.writeFile(temporary, JSON.stringify(rows, null, 2), "utf8");
+    await fs.rename(temporary, dataFile);
+  });
+  fileWrites = write.catch(() => undefined);
+  return write;
 }
 
 export async function listRsvps(): Promise<Rsvp[]> {
@@ -245,23 +236,31 @@ export function mergeRsvpList(
   return next;
 }
 
-export async function addRsvp(
-  input: Omit<Rsvp, "id" | "createdAt">,
-): Promise<Rsvp> {
+async function persistRsvp(rsvp: Rsvp, source: RsvpSource) {
+  const remote = shouldUseResendStore();
+  if (!remote) await mutateFileStore(rows => [rsvp, ...rows.filter(row => row.id !== rsvp.id)]);
+  const notification = await sendRsvpNotification(rsvp, source);
+  // On Vercel the host email is the durable record. Never report success before it is stored.
+  if (remote && !notification.sent) throw new Error("Could not save RSVP to Resend.");
+  if (remote) recentlySaved.set(rsvp.id, rsvp);
+  return { rsvp, emailSent: notification.sent };
+}
+
+export async function addRsvp(input: RsvpInput, source: "guest" | "manual" = "guest") {
   const entry: Rsvp = normalizeRsvp({
     ...input,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   });
 
-  if (shouldUseResendStore()) {
-    return entry;
-  }
+  return persistRsvp(entry, source);
+}
 
-  const rsvps = await listFromFile();
-  rsvps.unshift(entry);
-  await fs.writeFile(dataFile, JSON.stringify(rsvps, null, 2), "utf8");
-  return entry;
+export function updateRsvp(existing: Rsvp, input: RsvpInput) {
+  const previousTime = Date.parse(existing.updatedAt) || 0;
+  const updatedAt = new Date(Math.max(Date.now(), previousTime + 1)).toISOString();
+  const entry = normalizeRsvp({ ...existing, ...input, updatedAt });
+  return persistRsvp(entry, "updated");
 }
 
 export async function deleteRsvp(
@@ -313,17 +312,15 @@ export async function deleteRsvp(
     return { ok: true };
   }
 
-  const rsvps = await listFromFile();
-  const next = rsvps.filter((r) => r.id !== id);
-  if (next.length === rsvps.length) {
+  let found = false;
+  await mutateFileStore(rows => {
+    found = rows.some(row => row.id === id);
+    return rows.filter(row => row.id !== id);
+  });
+  if (!found) {
     return { ok: false, reason: "RSVP not found." };
   }
-  await fs.writeFile(dataFile, JSON.stringify(next, null, 2), "utf8");
   return { ok: true };
-}
-
-export function rsvpRecordBlock(rsvp: Rsvp): string {
-  return [RECORD_START, JSON.stringify(rsvp), RECORD_END].join("\n");
 }
 
 export function summarize(rsvps: Rsvp[]) {
