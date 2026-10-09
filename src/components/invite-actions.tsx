@@ -2,40 +2,10 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { Calendar, MapPin, MessageCircle, Share2 } from "lucide-react";
+import { buildIcs } from "@/lib/calendar";
 import { shareLink, type Copy, type Lang } from "@/lib/copy";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
-
-function icsStamp(iso: string) {
-  return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-}
-
-function icsText(value: string) {
-  return value.replaceAll("\\", "\\\\").replaceAll("\n", "\\n").replaceAll(",", "\\,").replaceAll(";", "\\;");
-}
-
-function buildIcs(t: Copy) {
-  const summary = icsText(t.calendarTitle);
-  const description = icsText(t.calendarDescription(window.location.origin));
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Nidhi and Hardik Baby Shower//EN",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    `UID:nidhi-hardik-baby-shower-${icsStamp(event.startsAt)}@rsvp`,
-    `DTSTAMP:${icsStamp(new Date().toISOString())}`,
-    `DTSTART:${icsStamp(event.startsAt)}`,
-    `DTEND:${icsStamp(event.endsAt)}`,
-    `SUMMARY:${summary}`,
-    `LOCATION:${icsText(event.location)}`,
-    `DESCRIPTION:${description}`,
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ];
-  return lines.join("\r\n");
-}
 
 /** The invitation message in the language the guest is viewing the page in */
 function shareText(t: Copy, lang: Lang) {
@@ -68,7 +38,7 @@ export function InviteActions() {
   }
 
   function saveDate() {
-    const blob = new Blob([buildIcs(t)], { type: "text/calendar;charset=utf-8" });
+    const blob = new Blob([buildIcs(t, window.location.origin)], { type: "text/calendar;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

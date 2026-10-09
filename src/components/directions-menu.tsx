@@ -2,15 +2,13 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ExternalLink, Navigation } from "lucide-react";
-import { event } from "@/lib/event";
+import { directions } from "@/lib/calendar";
 import { useCopy } from "@/lib/i18n";
 
-const destination = encodeURIComponent(event.location);
-
 const apps = [
-  { name: "Google Maps", href: `https://www.google.com/maps/dir/?api=1&destination=${destination}` },
+  { name: "Google Maps", href: directions.google },
   // Opens the Apple Maps app on iPhone, iPad and Mac, and Apple's web map elsewhere
-  { name: "Apple Maps", href: `https://maps.apple.com/?daddr=${destination}&dirflg=d` },
+  { name: "Apple Maps", href: directions.apple },
 ] as const;
 
 /** "Get directions" with a choice of map app, opened inline so the card never clips it */

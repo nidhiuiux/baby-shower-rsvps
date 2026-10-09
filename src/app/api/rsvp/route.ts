@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { event } from "@/lib/event";
 import { isHostPin } from "@/lib/host-auth";
-import { sendRsvpConfirmation } from "@/lib/notify";
+import { guestConfirmationsEnabled, sendRsvpConfirmation, type NotifyResult } from "@/lib/notify";
 import { copy } from "@/lib/copy";
 import { validateRsvpInput } from "@/lib/rsvp-model";
 import {
@@ -14,6 +14,31 @@ import {
 
 /** Listing reads RSVPs back from Resend, which can take a few seconds when rate-limited. */
 export const maxDuration = 60;
+
+/** Guest form only: a few replies per address every ten minutes is plenty for a family. */
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 8;
+const recentByIp = new Map<string, number[]>();
+
+function clientIp(request: Request) {
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip")?.trim() || "";
+}
+
+function rateLimited(ip: string) {
+  if (!ip) return false;
+  const now = Date.now();
+  const recent = (recentByIp.get(ip) ?? []).filter((time) => now - time < RATE_WINDOW_MS);
+  if (recent.length >= RATE_MAX) return true;
+  recent.push(now);
+  recentByIp.set(ip, recent);
+  if (recentByIp.size > 5000) recentByIp.clear();
+  return false;
+}
+
+function confirmationStatus(result: NotifyResult | null) {
+  if (!result) return "off" as const;
+  return result.sent ? ("sent" as const) : result.code;
+}
 
 async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   try {
@@ -29,6 +54,15 @@ export async function POST(request: Request) {
   if (isManual && !isHostPin(request.headers.get("x-host-pin") ?? body.pin)) {
     return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
   }
+  if (!isManual) {
+    // Bots fill every field, people never see this one. Pretend success and store nothing.
+    if (typeof body.rsvp_extra === "string" && body.rsvp_extra.trim()) {
+      return NextResponse.json({ ok: true, confirmationRequested: false, confirmationSent: false, confirmationStatus: "off" });
+    }
+    if (rateLimited(clientIp(request))) {
+      return NextResponse.json({ error: copy.en.formErrTooMany, errorCode: "formErrTooMany" }, { status: 429 });
+    }
+  }
   const parsed = validateRsvpInput(body, !isManual);
   if (parsed.error) return NextResponse.json({ error: copy.en[parsed.error], errorCode: parsed.error }, { status: 400 });
   if (isManual && body.sendConfirmation === true && !parsed.value.email) {
@@ -38,7 +72,7 @@ export async function POST(request: Request) {
     const saved = await addRsvp(parsed.value, isManual ? "manual" : "guest");
     const confirmationRequested = !isManual || body.sendConfirmation === true;
     const confirmation = confirmationRequested ? await sendRsvpConfirmation(saved.rsvp) : null;
-    return NextResponse.json({ ok: true, ...saved, confirmationRequested, confirmationSent: confirmation?.sent ?? false });
+    return NextResponse.json({ ok: true, ...saved, confirmationRequested, confirmationSent: confirmation?.sent ?? false, confirmationStatus: confirmationStatus(confirmation) });
   } catch (error) {
     console.error("Could not save RSVP:", error);
     return NextResponse.json({ error: "Could not save RSVP. Please try again." }, { status: 503 });
@@ -65,7 +99,7 @@ export async function PATCH(request: Request) {
     }
     const saved = await updateRsvp(existing, parsed.value);
     const confirmation = body.sendConfirmation === true ? await sendRsvpConfirmation(saved.rsvp) : null;
-    return NextResponse.json({ ok: true, ...saved, confirmationRequested: body.sendConfirmation === true, confirmationSent: confirmation?.sent ?? false });
+    return NextResponse.json({ ok: true, ...saved, confirmationRequested: body.sendConfirmation === true, confirmationSent: confirmation?.sent ?? false, confirmationStatus: confirmationStatus(confirmation) });
   } catch (error) {
     console.error("Could not update RSVP:", error);
     return NextResponse.json({ error: "Could not save the changes. Please try again." }, { status: 503 });
@@ -94,6 +128,7 @@ export async function GET(request: Request) {
     email: {
       notifyEmail: process.env.NOTIFY_EMAIL || event.notifyEmail,
       configured: Boolean(process.env.RESEND_API_KEY?.trim()),
+      guestConfirmations: guestConfirmationsEnabled(),
     },
   });
 }
