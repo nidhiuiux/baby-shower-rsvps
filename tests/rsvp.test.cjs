@@ -182,3 +182,31 @@ test("one address cannot flood the guest form", async () => {
   assert.deepEqual(statuses.slice(0, 8), Array(8).fill(200));
   assert.equal(statuses[8], 429);
 });
+
+test("with Gmail set up, guests are emailed through Gmail while the host email stays on Resend", async () => {
+  const notify = require("../src/lib/notify.ts");
+  const mails = [];
+  notify.setGmailTransportForTests({ sendMail: async (message) => { mails.push(message); return { messageId: "gmail-1" }; } });
+  const from = process.env.NOTIFY_FROM_EMAIL;
+  delete process.env.NOTIFY_FROM_EMAIL;
+  process.env.GMAIL_USER = "couple@gmail.test";
+  process.env.GMAIL_APP_PASSWORD = "abcd efgh ijkl mnop";
+  try {
+    const before = sent.length;
+    const response = await route.POST(request("POST", fixture({ name: "Gmail Guest", lang: "en" })));
+    const result = await response.json();
+    assert.equal(result.confirmationStatus, "sent");
+    assert.equal(sent.length - before, 1, "only the host email goes through Resend");
+    assert.deepEqual(sent.at(-1).to, ["host@example.test"]);
+    assert.equal(mails.length, 1);
+    assert.equal(mails[0].to, "asha@example.test");
+    assert.equal(mails[0].from.address, "couple@gmail.test");
+    assert.equal(mails[0].replyTo, "host@example.test");
+    assert.ok(mails[0].attachments.some(a => a.cid === "krishna-moon" && Buffer.isBuffer(a.content)));
+    assert.ok(mails[0].attachments.some(a => a.filename.endsWith(".ics")));
+  } finally {
+    process.env.NOTIFY_FROM_EMAIL = from;
+    delete process.env.GMAIL_USER; delete process.env.GMAIL_APP_PASSWORD;
+    notify.setGmailTransportForTests(null);
+  }
+});

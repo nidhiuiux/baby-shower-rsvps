@@ -59,7 +59,7 @@ export function HostRsvpEditor({ pin, existing, onSaved, onCancel, disabled, onS
         </div>
         <label className="flex min-h-11 items-start gap-3 text-sm leading-relaxed">
           <input type="checkbox" checked={sendConfirmation && confirmationsEnabled} disabled={!confirmationsEnabled} onChange={e => setSendConfirmation(e.target.checked)} className="mt-1 size-5 shrink-0 accent-primary disabled:opacity-50" />
-          <span>Send a confirmation email to this guest when I save.<span className="mt-1 block text-muted-foreground">{confirmationsEnabled ? "Leave unchecked when filling in details for an earlier RSVP." : "Available once a verified sender (NOTIFY_FROM_EMAIL) is set up."}</span></span>
+          <span>Send a confirmation email to this guest when I save.<span className="mt-1 block text-muted-foreground">{confirmationsEnabled ? "Leave unchecked when filling in details for an earlier RSVP." : "Available once Gmail sending (GMAIL_USER + GMAIL_APP_PASSWORD) is set up in Vercel."}</span></span>
         </label>
         {error && <p role="alert" className="form-error">{error}</p>}
         <div className="flex flex-wrap gap-3">

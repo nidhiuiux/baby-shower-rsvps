@@ -62,6 +62,8 @@ export function HostDashboard() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // Removing is permanent, so it takes a second, explicit "Yes, remove".
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState("");
   const yes = rsvps?.filter(r => r.attending === "yes") ?? [];
   const summary = rsvps ? { total: rsvps.length, yes: yes.length, no: rsvps.length - yes.length, headcount: yes.reduce((sum, r) => sum + r.guests, 0) } : null;
@@ -124,7 +126,7 @@ export function HostDashboard() {
   return (
     <div className="content-width space-y-8">
       <p role="status" className={announcement ? "status-note" : "sr-only"}>{announcement}</p>
-      {emailStatus && <div className="status-note space-y-1">{emailStatus.configured ? <p>Email notifications go to <strong>{emailStatus.notifyEmail}</strong>.</p> : <p>Email delivery is not configured. Replies saved locally can still be edited here.</p>}{emailStatus.configured && !emailStatus.guestConfirmations && <p>Guest confirmation emails are off. To turn them on, verify a domain in Resend and set <code>NOTIFY_FROM_EMAIL</code> in Vercel, then redeploy.</p>}</div>}
+      {emailStatus && <div className="status-note space-y-1">{emailStatus.configured ? <p>Email notifications go to <strong>{emailStatus.notifyEmail}</strong>.</p> : <p>Email delivery is not configured. Replies saved locally can still be edited here.</p>}{emailStatus.configured && !emailStatus.guestConfirmations && <p>Guest confirmation emails are off. To turn them on, add <code>GMAIL_USER</code> and <code>GMAIL_APP_PASSWORD</code> (a Gmail app password) in Vercel, then redeploy.</p>}</div>}
       {summary && <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[{ label: "Responses", value: summary.total }, { label: "Coming", value: summary.yes }, { label: "Can't make it", value: summary.no }, { label: "Guest total", value: summary.headcount }].map(item => <div key={item.label} className="surface-card px-4 py-5 text-center"><p className="font-display text-3xl text-[var(--ink)]">{item.value}</p><p className="mt-1 text-sm text-[var(--ink-soft)]">{item.label}</p></div>)}
       </div>}
@@ -166,10 +168,22 @@ export function HostDashboard() {
                 {rsvp.guestDetails.map((guest, i) => <li key={i} className="break-words"><span className="font-semibold">{guest.name || `Guest ${i + 1} · name to add`}</span> · {guest.dietary ? copy.en[dietaryCopyKeys[guest.dietary]] : "Dietary preference to add"}{guest.dietaryNote ? ` · ${guest.dietaryNote}` : ""}</li>)}
               </ol>}
               {rsvp.note && <p className="mt-4 whitespace-pre-wrap break-words text-sm text-muted-foreground">{rsvp.note}</p>}
-              <div className="mt-4 flex justify-end gap-2">
-                <Button type="button" variant="outline" size="sm" aria-label={`Edit RSVP for ${rsvp.name}`} disabled={saving || editingId !== null} onClick={() => { setEditingId(rsvp.id); setAnnouncement(""); }}>Edit details</Button>
-                <Button type="button" variant="outline" size="sm" disabled={saving} aria-label={`Remove RSVP for ${rsvp.name}`} onClick={() => void removeRsvp(rsvp.id)}>Remove</Button>
-              </div>
+              {confirmingId === rsvp.id ? (
+                <div role="alertdialog" aria-labelledby={`confirm-${rsvp.id}`} className="mt-4 rounded-xl border border-[var(--blush-deep)]/30 bg-[var(--blush)]/40 p-4">
+                  <p id={`confirm-${rsvp.id}`} className="text-sm font-semibold leading-relaxed text-[var(--ink)]">
+                    Are you sure you want to remove {rsvp.name}&apos;s RSVP? This cannot be undone.
+                  </p>
+                  <div className="mt-3 flex flex-wrap justify-end gap-2">
+                    <Button type="button" variant="outline" size="sm" autoFocus onClick={() => setConfirmingId(null)}>Cancel</Button>
+                    <Button type="button" size="sm" className="bg-[var(--destructive)] text-white hover:bg-[var(--blush-deep)]" disabled={saving} onClick={() => { setConfirmingId(null); void removeRsvp(rsvp.id); }}>Yes, remove</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 flex justify-end gap-2">
+                  <Button type="button" variant="outline" size="sm" aria-label={`Edit RSVP for ${rsvp.name}`} disabled={saving || editingId !== null} onClick={() => { setEditingId(rsvp.id); setAnnouncement(""); setConfirmingId(null); }}>Edit details</Button>
+                  <Button type="button" variant="outline" size="sm" disabled={saving} aria-label={`Remove RSVP for ${rsvp.name}`} onClick={() => setConfirmingId(rsvp.id)}>Remove</Button>
+                </div>
+              )}
             </>}
           </li>)}
         </ul>
