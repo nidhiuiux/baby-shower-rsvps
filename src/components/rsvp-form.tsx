@@ -14,7 +14,8 @@ export function RsvpForm() {
   const [draft, setDraft] = useState<RsvpDraft>(emptyRsvpDraft);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-  const [confirmationSent, setConfirmationSent] = useState(false);
+  const [confirmation, setConfirmation] = useState<"sent" | "off" | "failed">("off");
+  const [honeypot, setHoneypot] = useState("");
   const thanksRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (status === "done") thanksRef.current?.focus();
@@ -29,15 +30,15 @@ export function RsvpForm() {
     setStatus("saving");
     try {
       const res = await fetch("/api/rsvp", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(parsed.value),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...parsed.value, rsvp_extra: honeypot }),
       });
-      const data = await res.json() as { error?: string; errorCode?: ValidationCode; confirmationSent?: boolean };
+      const data = await res.json() as { error?: string; errorCode?: ValidationCode | "formErrTooMany"; confirmationStatus?: "sent" | "off" | "failed" };
       if (!res.ok) {
         setError(data.errorCode && data.errorCode in t ? t[data.errorCode] : (lang === "en" && data.error) || t.formErrGeneric);
         setStatus("error");
         return;
       }
-      setConfirmationSent(data.confirmationSent === true);
+      setConfirmation(data.confirmationStatus ?? "off");
       setDraft(parsed.value);
       setStatus("done");
     } catch { setError(t.formErrSend); setStatus("error"); }
@@ -49,7 +50,7 @@ export function RsvpForm() {
       <div ref={thanksRef} tabIndex={-1} role="status" className="animate-rise rounded-xl bg-secondary p-6 outline-none sm:p-8">
         <p className="section-heading text-center">{draft.attending === "yes" ? t.thanksYes : t.thanksNo}</p>
         <p className="section-copy mt-3 break-words text-center">{draft.attending === "yes" ? t.thanksYesSub(firstName) : t.thanksNoSub(firstName)}</p>
-        <p className="mt-4 break-words text-center text-sm leading-relaxed text-muted-foreground">{confirmationSent ? t.thanksEmailSent(draft.email) : t.thanksEmailFailed}</p>
+        <p className="mt-4 break-words text-center text-sm leading-relaxed text-muted-foreground">{confirmation === "sent" ? t.thanksEmailSent(draft.email) : confirmation === "failed" ? t.thanksEmailFailed : t.thanksSaved}</p>
         <div className="mt-6 rounded-xl border border-border bg-white/70 p-5">
           <p className="eyebrow mb-4">{t.recapTitle}</p>
           <BlogCard variant="ledger" title={t.recapName} date={draft.name} />
@@ -71,6 +72,11 @@ export function RsvpForm() {
       <fieldset disabled={status === "saving"} className="min-w-0 space-y-6">
         <legend className="sr-only">{t.rsvpAria}</legend>
         <RsvpFields value={draft} onChange={setDraft} t={t} />
+        {/* Hidden from people and screen readers; only form-filling bots reach it. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+          <label htmlFor="rsvp-extra">Leave this empty</label>
+          <input id="rsvp-extra" name="rsvp_extra" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+        </div>
         {error && <p className="form-error" role="alert">{error}</p>}
         <Button type="submit" disabled={status === "saving"} className="w-full">{status === "saving" ? t.formSending : t.formSend}</Button>
       </fieldset>

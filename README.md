@@ -97,6 +97,28 @@ RSVPs on Vercel are stored via Resend email records (same inbox as notifications
 | `npm start` | Run the production build |
 | `npm test` | Validate fields, email templates, persistence, legacy edits and delivery failures using isolated data and mocked email transport |
 
+**Guest confirmation emails need a verified sender.** Until `NOTIFY_FROM_EMAIL`
+uses an address on a domain verified in Resend, guest confirmations are switched
+off automatically (the host email still goes out, and the guest's success screen
+simply says the reply is saved). Set it in Vercel and redeploy to turn them on.
+
+What the emails include:
+- **Guest (English or Gujarati, attending):** Krishna artwork and साहेब बंदगी साहेब
+  header, a ticket-style date card, Add to calendar and directions (Google and
+  Apple), an attached `.ics` calendar file with a one-day reminder, each family
+  member with their food preference, and a reply-to-change note.
+- **Guest (declined):** a warm thank-you with the live stream note.
+- **Host:** the guest's name and status up top, one-tap Call / WhatsApp / Email,
+  the party with food preferences, a highlighted list of allergies, and the full
+  record (the plain-text part is the stored copy on Vercel, so its
+  `RSVP Yes/No/Update:` subject and record block must stay).
+
+Spam protection: a hidden honeypot field and a per-address limit (8 replies per
+10 minutes) on the guest form.
+
+Host page extras: food planning totals, allergies at a glance, possible-duplicate
+flags (same email or phone), and a one-row-per-person CSV download.
+
 Email templates live in `src/lib/rsvp-emails.ts`. They include HTML and plain
 text, use inline styles and table layouts, escape guest-provided content,
 and need no new dependencies. Browser previews are useful for layout checks;

@@ -140,3 +140,45 @@ test("Resend reload picks the newest complete record, preserves legacy records, 
   assert.equal((await store.listRsvps()).find(row => row.id === latest.id).email, updated.rsvp.email, "recent save is visible while Resend list lags");
   delete process.env.RSVP_STORE;
 });
+
+test("guest emails carry the artwork inline and attending guests get a calendar file", async () => {
+  const yes = emails.buildGuestConfirmationEmail(model.normalizeRsvp(fixture({ lang: "en" })));
+  assert.ok(yes.html.includes("cid:krishna-moon"));
+  assert.ok(yes.attachments.some(a => a.contentId === "krishna-moon"));
+  const ics = yes.attachments.find(a => a.filename.endsWith(".ics"));
+  assert.ok(ics); assert.match(Buffer.from(ics.content, "base64").toString(), /BEGIN:VEVENT[\s\S]*DTSTART:20261025T143000Z/);
+  const no = emails.buildGuestConfirmationEmail(model.normalizeRsvp(fixture({ attending: "no" })));
+  assert.ok(!no.attachments.some(a => a.filename.endsWith(".ics")));
+  const host = emails.buildHostNotificationEmail(model.normalizeRsvp(fixture()), "guest");
+  assert.ok(host.html.includes("https://wa.me/12015550123")); assert.ok(host.html.includes("mailto:asha@example.test"));
+  assert.ok(!host.attachments, "host emails stay light: they are the stored records");
+});
+
+test("a filled honeypot looks successful but stores and sends nothing", async () => {
+  const before = sent.length;
+  const rowsBefore = (await store.listRsvps()).length;
+  const response = await route.POST(request("POST", { ...fixture(), rsvp_extra: "https://spam.example" }));
+  assert.equal(response.status, 200);
+  assert.equal(sent.length, before);
+  assert.equal((await store.listRsvps()).length, rowsBefore);
+});
+
+test("guest confirmations stay off without a verified sender, and the host is still notified", async () => {
+  const from = process.env.NOTIFY_FROM_EMAIL;
+  delete process.env.NOTIFY_FROM_EMAIL;
+  try {
+    const before = sent.length;
+    const response = await route.POST(request("POST", fixture({ name: "No Sender" })));
+    const result = await response.json();
+    assert.equal(response.status, 200); assert.equal(result.confirmationStatus, "off");
+    assert.equal(sent.length - before, 1); assert.deepEqual(sent.at(-1).to, ["host@example.test"]);
+  } finally { process.env.NOTIFY_FROM_EMAIL = from; }
+});
+
+test("one address cannot flood the guest form", async () => {
+  const flood = (i) => new Request("http://test.local/api/rsvp", { method: "POST", headers: { "Content-Type": "application/json", "x-forwarded-for": "203.0.113.9" }, body: JSON.stringify(fixture({ name: `Flood ${i}` })) });
+  const statuses = [];
+  for (let i = 0; i < 9; i++) statuses.push((await route.POST(flood(i))).status);
+  assert.deepEqual(statuses.slice(0, 8), Array(8).fill(200));
+  assert.equal(statuses[8], 429);
+});

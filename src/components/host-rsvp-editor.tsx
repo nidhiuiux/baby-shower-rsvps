@@ -9,9 +9,9 @@ import { emptyRsvpDraft, guestsForDraft, validateRsvpInput, type Rsvp, type Rsvp
 
 const labels = { ...copy.en, formName: "Guest name", formAttend: "Will they attend?", formGuests: "Number of guests (including them)", formYou: "Primary guest" };
 
-export function HostRsvpEditor({ pin, existing, onSaved, onCancel, disabled, onSavingChange }: {
+export function HostRsvpEditor({ pin, existing, onSaved, onCancel, disabled, onSavingChange, confirmationsEnabled = false }: {
   pin: string; existing?: Rsvp; onSaved: (rsvp: Rsvp, message: string) => void; onCancel?: () => void;
-  disabled?: boolean; onSavingChange: (saving: boolean) => void;
+  disabled?: boolean; onSavingChange: (saving: boolean) => void; confirmationsEnabled?: boolean;
 }) {
   const [draft, setDraft] = useState<RsvpDraft>(() => existing ? { ...existing, guests: existing.guests || 1 } : { ...emptyRsvpDraft(), attending: "yes" });
   const [sendConfirmation, setSendConfirmation] = useState(false);
@@ -26,18 +26,18 @@ export function HostRsvpEditor({ pin, existing, onSaved, onCancel, disabled, onS
     setError("");
     const parsed = validateRsvpInput({ ...draft, guestDetails: draft.attending === "yes" ? guestsForDraft(draft) : [] }, false);
     if (parsed.error) { setError(copy.en[parsed.error]); return; }
-    if (sendConfirmation && !parsed.value.email) { setError("Add an email address before sending a confirmation."); return; }
+    if (sendConfirmation && confirmationsEnabled && !parsed.value.email) { setError("Add an email address before sending a confirmation."); return; }
     setSaving(true);
     onSavingChange(true);
     try {
       const res = await fetch("/api/rsvp", {
         method: existing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json", "x-host-pin": pin },
-        body: JSON.stringify({ ...parsed.value, ...(existing ? { id: existing.id, updatedAt: existing.updatedAt } : {}), sendConfirmation }),
+        body: JSON.stringify({ ...parsed.value, ...(existing ? { id: existing.id, updatedAt: existing.updatedAt } : {}), sendConfirmation: sendConfirmation && confirmationsEnabled }),
       });
       const data = await res.json() as { error?: string; rsvp?: Rsvp; confirmationSent?: boolean };
       if (!res.ok || !data.rsvp) { setError(data.error || "Could not save RSVP."); return; }
-      const delivery = sendConfirmation ? (data.confirmationSent ? " Confirmation email sent." : " Saved, but the guest email could not be sent.") : "";
+      const delivery = sendConfirmation && confirmationsEnabled ? (data.confirmationSent ? " Confirmation email sent." : " Saved, but the guest email could not be sent.") : "";
       onSaved(data.rsvp, `${existing ? "Updated" : "Added"} ${data.rsvp.name}.${delivery}`);
       if (!existing) { setDraft({ ...emptyRsvpDraft(), attending: "yes" }); setSendConfirmation(false); }
     } catch { setError("Could not save RSVP. Please try again."); }
@@ -58,8 +58,8 @@ export function HostRsvpEditor({ pin, existing, onSaved, onCancel, disabled, onS
           </select>
         </div>
         <label className="flex min-h-11 items-start gap-3 text-sm leading-relaxed">
-          <input type="checkbox" checked={sendConfirmation} onChange={e => setSendConfirmation(e.target.checked)} className="mt-1 size-5 shrink-0 accent-primary" />
-          <span>Send a confirmation email to this guest when I save.<span className="mt-1 block text-muted-foreground">Leave unchecked when filling in details for an earlier RSVP.</span></span>
+          <input type="checkbox" checked={sendConfirmation && confirmationsEnabled} disabled={!confirmationsEnabled} onChange={e => setSendConfirmation(e.target.checked)} className="mt-1 size-5 shrink-0 accent-primary disabled:opacity-50" />
+          <span>Send a confirmation email to this guest when I save.<span className="mt-1 block text-muted-foreground">{confirmationsEnabled ? "Leave unchecked when filling in details for an earlier RSVP." : "Available once a verified sender (NOTIFY_FROM_EMAIL) is set up."}</span></span>
         </label>
         {error && <p role="alert" className="form-error">{error}</p>}
         <div className="flex flex-wrap gap-3">
