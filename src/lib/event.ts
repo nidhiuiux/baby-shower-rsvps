@@ -16,7 +16,7 @@ export const event = {
   endsAt: "2026-10-25T13:30:00-04:00",
   location: "124 Crain Road, Paramus, NJ 07652",
   /** Reply-by date shown above the RSVP form and in the shared message */
-  rsvpBy: "Saturday, October 10th",
+  rsvpBy: "Monday, October 12th",
   /** The message guests send when they share the invitation (WhatsApp, Messages, etc.) */
   share: {
     greeting: "साहेब बंदगी साहेब 🙏",
