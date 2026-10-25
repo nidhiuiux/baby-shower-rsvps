@@ -7,7 +7,7 @@ import { VideoPlayer } from "@/components/ui/video-thumbnail-player";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
 import { ExternalLink, Video } from "lucide-react";
-import thumbnail from "../../public/live/thumbnail.jpg";
+import thumbnail from "../../public/live/thumbnail-v2.jpg";
 
 /** YouTube video id from a /live/, /watch?v= or youtu.be link */
 function youtubeId(url: string) {

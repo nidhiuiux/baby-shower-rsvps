@@ -4,7 +4,8 @@ import { event } from "@/lib/event";
  * One-off "we're live" email for everyone who gave an email address.
  * Bilingual (English, then Gujarati) because the list mixes both.
  */
-export function buildLiveAnnouncementEmail() {
+export function buildLiveAnnouncementEmail(variant: "first" | "update" = "first") {
+  const update = variant === "update";
   const live = event.liveStreamUrl;
   const site = event.siteUrl.replace(/\/$/, "");
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>
@@ -18,7 +19,7 @@ export function buildLiveAnnouncementEmail() {
 <p style="margin:8px 0 0;color:#94534f;font-family:Georgia,serif;font-size:17px;font-style:italic;line-height:1.5;">Shrimant Sanskar &amp; Baby Shower · સીમંત વિધિ</p>
 </td></tr>
 <tr><td style="padding:26px 28px 6px;font-size:16px;line-height:1.7;">
-<p style="margin:0 0 18px;text-align:center;"><span style="display:inline-block;padding:7px 14px;border-radius:999px;background:#fbe3e1;color:#b3261e;font-size:14px;font-weight:bold;">● LIVE TODAY · આજે લાઇવ</span></p>
+<p style="margin:0 0 18px;text-align:center;"><span style="display:inline-block;padding:7px 14px;border-radius:999px;background:#fbe3e1;color:#b3261e;font-size:14px;font-weight:bold;">${update ? "● LIVE NOW · અત્યારે લાઇવ" : "● LIVE TODAY · આજે લાઇવ"}</span></p>${update ? `<p style="margin:0 0 20px;padding:14px 16px;border-radius:14px;background:#f1dad5;color:#94534f;font-size:15px;line-height:1.6;"><strong>Updated link:</strong> we restarted the stream in landscape for a better view. Please use the new link below.<br><strong>નવી લિંક:</strong> વધુ સારી રીતે જોઈ શકાય તે માટે અમે પ્રસારણ ફરીથી શરૂ કર્યું છે. કૃપા કરીને નીચેની નવી લિંકનો ઉપયોગ કરશો.</p>` : ""}
 <h1 style="margin:0 0 14px;color:#2f3d34;font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.35;text-align:center;">Watch our celebration live</h1>
 <p style="margin:0 0 20px;">Our Shrimant Sanskar &amp; Baby Shower is today. Whether you're with us in person or celebrating from far away, you can watch the ceremony live on YouTube and send your blessings to our little one.</p>
 <a href="${live}" style="display:block;text-decoration:none;"><img src="cid:live-banner" width="544" alt="Nidhi's Baby Shower live on YouTube — tap to watch" style="display:block;width:100%;max-width:544px;height:auto;border:0;border-radius:16px;"></a>
@@ -43,6 +44,7 @@ export function buildLiveAnnouncementEmail() {
 <tr><td align="center" style="background:#f7f3ef;padding:18px 24px;color:#5f6b62;font-size:12px;line-height:1.7;">124 Crain Road, Paramus, NJ 07652<br><a href="${site}/" style="color:#4e7257;font-weight:bold;">View the invitation · આમંત્રણ જુઓ</a></td></tr>
 </table></td></tr></table></body></html>`;
   const text = [
+    ...(update ? ["UPDATED LINK: we restarted the stream in landscape for a better view. Please use the new link below.", "નવી લિંક: કૃપા કરીને નીચેની નવી લિંકનો ઉપયોગ કરશો.", ""] : []),
     "साहेब बंदगी साहेब",
     "Nidhi & Hardik · Shrimant Sanskar & Baby Shower",
     "",
@@ -60,9 +62,11 @@ export function buildLiveAnnouncementEmail() {
     "Nidhi & Hardik",
   ].join("\n");
   return {
-    subject: "🔴 Live today: Nidhi & Hardik's Shrimant Sanskar · આજે લાઇવ જુઓ",
+    subject: update
+      ? "🔴 Updated live link: Nidhi & Hardik's Shrimant Sanskar · નવી લાઇવ લિંક"
+      : "🔴 Live today: Nidhi & Hardik's Shrimant Sanskar · આજે લાઇવ જુઓ",
     html,
     text,
-    attachments: [{ filename: "live-stream.jpg", path: `${site}/live/thumbnail.jpg`, cid: "live-banner", contentType: "image/jpeg" }],
+    attachments: [{ filename: "live-stream.jpg", path: `${site}/live/thumbnail-v2.jpg`, cid: "live-banner", contentType: "image/jpeg" }],
   };
 }

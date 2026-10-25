@@ -15,7 +15,7 @@ const EMAIL = /^[^\s<>@,;]+@[^\s<>@,;]+\.[^\s<>@,;]+$/;
  */
 export async function POST(request: Request) {
   if (!isHostPin(request.headers.get("x-host-pin"))) return NextResponse.json({ error: "Wrong PIN." }, { status: 401 });
-  const body = (await request.json().catch(() => null)) as { mode?: string; extra?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { mode?: string; extra?: unknown; variant?: string } | null;
   const mode = body?.mode;
   if (mode !== "preview" && mode !== "test" && mode !== "send") return NextResponse.json({ error: "mode must be preview, test or send." }, { status: 400 });
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
   if (mode === "preview") return NextResponse.json({ ok: true, count: recipients.length, recipients });
 
-  const email = buildLiveAnnouncementEmail();
+  const email = buildLiveAnnouncementEmail(body?.variant === "update" ? "update" : "first");
   const result = await sendAnnouncement(email, mode === "send" ? recipients : []);
   if (!result.sent) return NextResponse.json({ error: result.reason }, { status: 502 });
   return NextResponse.json({ ok: true, mode, sentTo: mode === "send" ? recipients.length : notifyAddress() });
