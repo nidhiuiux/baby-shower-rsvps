@@ -126,6 +126,8 @@ const en = {
   liveWhen: event.date,
   liveSoonPill: "Link coming soon",
   liveWatch: "Watch live",
+  liveOpenYoutube: "Open in YouTube",
+  liveClose: "Close video",
 
   withLove: "With love,",
 
@@ -272,6 +274,8 @@ const gu: Copy = {
   liveWhen: "રવિવાર, 25 ઓક્ટોબર · સવારે 10:30",
   liveSoonPill: "લિંક ટૂંક સમયમાં",
   liveWatch: "લાઇવ જુઓ",
+  liveOpenYoutube: "YouTube માં ખોલો",
+  liveClose: "વિડિયો બંધ કરો",
 
   withLove: "સ્નેહપૂર્વક,",
 

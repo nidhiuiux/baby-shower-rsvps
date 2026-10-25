@@ -3,14 +3,23 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { Spotlight } from "@/components/ui/spotlight";
+import { VideoPlayer } from "@/components/ui/video-thumbnail-player";
 import { event } from "@/lib/event";
 import { useCopy } from "@/lib/i18n";
-import { Video } from "lucide-react";
+import { ExternalLink, Video } from "lucide-react";
+import thumbnail from "../../public/live/thumbnail.jpg";
+
+/** YouTube video id from a /live/, /watch?v= or youtu.be link */
+function youtubeId(url: string) {
+  const match = url.match(/(?:youtube\.com\/(?:live\/|watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+  return match?.[1] ?? null;
+}
 
 /** One calm section for guests joining online; shows "stay tuned" until event.liveStreamUrl is set */
 export function LiveStream() {
   const { t } = useCopy();
   const url = event.liveStreamUrl;
+  const videoId = url ? youtubeId(url) : null;
 
   return (
     <Reveal>
@@ -32,7 +41,27 @@ export function LiveStream() {
           {url ? t.liveReady : t.liveSoon}
         </p>
         <p className="mt-1 text-sm text-[var(--ink-muted)]">{t.liveWhen}</p>
-        {url ? (
+        {url && videoId ? (
+          <>
+            <VideoPlayer
+              className="mt-6"
+              thumbnailUrl={thumbnail}
+              videoUrl={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`}
+              title={t.liveHeading}
+              hideCaption
+              closeLabel={t.liveClose}
+            />
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "outline", className: "mt-4" })}
+            >
+              <ExternalLink aria-hidden />
+              {t.liveOpenYoutube}
+            </a>
+          </>
+        ) : url ? (
           <a
             href={url}
             target="_blank"
