@@ -31,7 +31,7 @@ export const event = {
    * Live-stream link for guests who can't attend in person.
    * Leave empty until you have it — the page shows "stay tuned" instead.
    */
-  liveStreamUrl: "",
+  liveStreamUrl: "https://www.youtube.com/live/34v5Gw_gLqk",
   /** Public address of the site, used for social-preview links. Update if you add a custom domain. */
   siteUrl: "https://nidhi-hardik-baby-shower.vercel.app",
   /** Simple PIN to view RSVP responses at /host */
