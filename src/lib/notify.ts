@@ -103,3 +103,23 @@ export function sendRsvpConfirmation(rsvp: Rsvp): Promise<NotifyResult> {
   if (resendSenderVerified()) return sendWithResend(rsvp.email, template, `rsvp-guest-${rsvp.id}-${rsvp.updatedAt}`, notifyAddress());
   return Promise.resolve({ sent: false, reason: "Guest confirmations need Gmail (GMAIL_USER + GMAIL_APP_PASSWORD) or a verified Resend sender.", code: "off" });
 }
+
+type Announcement = { subject: string; html: string; text: string; attachments?: { filename: string; path: string; cid: string; contentType: string }[] };
+
+/** Host-triggered group email (e.g. the live stream link). Recipients go in BCC so nobody sees the list. */
+export async function sendAnnouncement(message: Announcement, bcc: string[]): Promise<NotifyResult> {
+  if (!gmailConfigured()) return { sent: false, reason: "Gmail sending (GMAIL_USER + GMAIL_APP_PASSWORD) is not set up.", code: "off" };
+  try {
+    await gmail().sendMail({
+      from: { name: event.brand, address: gmailUser() },
+      to: notifyAddress(),
+      bcc: bcc.length ? bcc : undefined,
+      replyTo: notifyAddress(),
+      ...message,
+    });
+    return { sent: true, via: "gmail" };
+  } catch (error) {
+    console.error("Announcement failed:", (error as Error).message);
+    return { sent: false, reason: (error as Error).message, code: "failed" };
+  }
+}
