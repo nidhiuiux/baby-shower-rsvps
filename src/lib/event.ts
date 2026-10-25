@@ -9,9 +9,9 @@ export const event = {
   brand: "Nidhi & Hardik",
   title: "Baby Shower",
   tagline: "We'd love to celebrate with you. Please let us know if you can make it.",
-  date: "Sunday, October 25 · 10:30 AM",
+  date: "Sunday, October 25 · 10:00 AM",
   /** ISO start used by the countdown and calendar file */
-  startsAt: "2026-10-25T10:30:00-04:00",
+  startsAt: "2026-10-25T10:00:00-04:00",
   /** ISO end used by the calendar file (about three hours) */
   endsAt: "2026-10-25T13:30:00-04:00",
   location: "124 Crain Road, Paramus, NJ 07652",
@@ -25,7 +25,7 @@ export const event = {
     closing:
       "Come share in the love, the blessings and the joy of this beautiful new chapter. Your presence would mean the world. 🤍",
     date: "Sunday, October 25th, 2026",
-    time: "10:30 AM onwards",
+    time: "10:00 AM onwards",
   },
   /**
    * Live-stream link for guests who can't attend in person.

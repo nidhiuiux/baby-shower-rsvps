@@ -22,14 +22,14 @@ export function buildLiveAnnouncementEmail() {
 <h1 style="margin:0 0 14px;color:#2f3d34;font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.35;text-align:center;">Watch our celebration live</h1>
 <p style="margin:0 0 20px;">Our Shrimant Sanskar &amp; Baby Shower is today. Whether you're with us in person or celebrating from far away, you can watch the ceremony live on YouTube and send your blessings to our little one.</p>
 <a href="${live}" style="display:block;text-decoration:none;"><img src="cid:live-banner" width="544" alt="Nidhi's Baby Shower live on YouTube — tap to watch" style="display:block;width:100%;max-width:544px;height:auto;border:0;border-radius:16px;"></a>
-<p style="margin:16px 0 4px;text-align:center;color:#2f3d34;font-size:15px;font-weight:bold;">Sunday, October 25, 2026 · 10:30 AM (New Jersey time)</p>
+<p style="margin:16px 0 4px;text-align:center;color:#2f3d34;font-size:15px;font-weight:bold;">Sunday, October 25, 2026 · 10:00 AM (New Jersey time)</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;"><tr><td><a href="${live}" style="display:block;padding:15px 18px;border-radius:14px;background:#4e7257;color:#ffffff;text-align:center;text-decoration:none;font-size:16px;font-weight:bold;">▶ Watch live on YouTube</a></td></tr></table>
 <p style="margin:12px 0 0;color:#5f6b62;font-size:13px;line-height:1.6;text-align:center;">Open it a few minutes early. If we haven't started yet, the video will begin playing as soon as we go live.</p>
 <p aria-hidden="true" style="margin:26px 0;text-align:center;color:#94534f;font-size:14px;letter-spacing:0.5em;">· ✿ ·</p>
 <div lang="gu">
 <h2 style="margin:0 0 12px;color:#2f3d34;font-family:Georgia,serif;font-size:24px;font-weight:normal;line-height:1.4;text-align:center;">આજે અમારો પ્રસંગ લાઇવ જુઓ</h2>
 <p style="margin:0 0 16px;">આજે અમારી સીમંત વિધિ છે. આપ રૂબરૂ પધારો કે દૂરથી જોડાઓ, YouTube પર વિધિ લાઇવ જોઈ શકશો અને અમારા નાનકડા મહેમાનને આશીર્વાદ આપી શકશો.</p>
-<p style="margin:0 0 4px;text-align:center;color:#2f3d34;font-size:15px;font-weight:bold;">રવિવાર, તા. 25 ઓક્ટોબર 2026 · સવારે 10:30 (ન્યૂ જર્સી સમય)</p>
+<p style="margin:0 0 4px;text-align:center;color:#2f3d34;font-size:15px;font-weight:bold;">રવિવાર, તા. 25 ઓક્ટોબર 2026 · સવારે 10:00 (ન્યૂ જર્સી સમય)</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;"><tr><td><a href="${live}" style="display:block;padding:15px 18px;border-radius:14px;background:#4e7257;color:#ffffff;text-align:center;text-decoration:none;font-size:16px;font-weight:bold;">▶ YouTube પર લાઇવ જુઓ</a></td></tr></table>
 <p style="margin:12px 0 0;color:#5f6b62;font-size:13px;line-height:1.6;text-align:center;">થોડી મિનિટ વહેલા લિંક ખોલશો. પ્રસારણ શરૂ થતાં જ વિડિયો આપોઆપ ચાલુ થશે.</p>
 </div>
@@ -48,12 +48,12 @@ export function buildLiveAnnouncementEmail() {
     "",
     "Watch our celebration live today",
     "Our Shrimant Sanskar & Baby Shower is today. Whether you're with us in person or celebrating from far away, you can watch the ceremony live on YouTube and send your blessings to our little one.",
-    "Sunday, October 25, 2026 · 10:30 AM (New Jersey time)",
+    "Sunday, October 25, 2026 · 10:00 AM (New Jersey time)",
     `Watch live on YouTube: ${live}`,
     "",
     "આજે અમારો પ્રસંગ લાઇવ જુઓ",
     "આજે અમારી સીમંત વિધિ છે. આપ રૂબરૂ પધારો કે દૂરથી જોડાઓ, YouTube પર વિધિ લાઇવ જોઈ શકશો અને અમારા નાનકડા મહેમાનને આશીર્વાદ આપી શકશો.",
-    "રવિવાર, તા. 25 ઓક્ટોબર 2026 · સવારે 10:30 (ન્યૂ જર્સી સમય)",
+    "રવિવાર, તા. 25 ઓક્ટોબર 2026 · સવારે 10:00 (ન્યૂ જર્સી સમય)",
     `YouTube પર લાઇવ જુઓ: ${live}`,
     "",
     "With love · સ્નેહપૂર્વક,",

@@ -211,7 +211,7 @@ export function TicketCard({
   presenter = "Parents-to-be",
   event = "Baby Shower",
   venue = "124 Crain Road",
-  dates = "Oct 25 · 10:30 AM",
+  dates = "Oct 25 · 10:00 AM",
   stubText = "Admit one",
   watermark = "2026",
   width = TICKET_GEOMETRY.width,

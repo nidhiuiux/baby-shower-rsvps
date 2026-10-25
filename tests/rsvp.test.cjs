@@ -146,7 +146,7 @@ test("guest emails carry the artwork inline and attending guests get a calendar 
   assert.ok(yes.html.includes("cid:krishna-moon"));
   assert.ok(yes.attachments.some(a => a.contentId === "krishna-moon"));
   const ics = yes.attachments.find(a => a.filename.endsWith(".ics"));
-  assert.ok(ics); assert.match(Buffer.from(ics.content, "base64").toString(), /BEGIN:VEVENT[\s\S]*DTSTART:20261025T143000Z/);
+  assert.ok(ics); assert.match(Buffer.from(ics.content, "base64").toString(), /BEGIN:VEVENT[\s\S]*DTSTART:20261025T140000Z/);
   const no = emails.buildGuestConfirmationEmail(model.normalizeRsvp(fixture({ attending: "no" })));
   assert.ok(!no.attachments.some(a => a.filename.endsWith(".ics")));
   const host = emails.buildHostNotificationEmail(model.normalizeRsvp(fixture()), "guest");

@@ -35,7 +35,7 @@ export function ShowerTicket({
   eventTitle = "Baby Shower",
   stubText = "Admit one",
   watermark = "2026",
-  dates = "Oct 25 · 10:30 AM",
+  dates = "Oct 25 · 10:00 AM",
 }: ShowerTicketProps) {
   const frame = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(320);

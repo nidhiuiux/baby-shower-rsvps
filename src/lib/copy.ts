@@ -24,7 +24,7 @@ const en = {
   title: event.title,
   tagline: event.tagline,
   ticketStub: "Admit one",
-  ticketDates: "Oct 25 · 10:30 AM",
+  ticketDates: "Oct 25 · 10:00 AM",
 
   blessingEyebrow: event.blessing.eyebrow,
   blessingMessage: "With hearts full of gratitude, we warmly welcome you to share in our joy.",
@@ -56,7 +56,7 @@ const en = {
   detailsHeading: "A few things to know",
   detailWhen: "When",
   detailWhenDate: "Sunday, October 25",
-  detailWhenTime: "10:30 in the morning",
+  detailWhenTime: "10:00 in the morning",
   detailWhere: "Where",
 
   rsvpAria: "RSVP form",
@@ -172,7 +172,7 @@ const gu: Copy = {
   title: "સીમંત વિધિ",
   tagline: "આ આનંદના અવસરે આપની ઉપસ્થિતિ અને આશીર્વાદ અમારે માટે અનમોલ રહેશે.",
   ticketStub: "Admit one",
-  ticketDates: "25 ઓક્ટોબર · સવારે 10:30",
+  ticketDates: "25 ઓક્ટોબર · સવારે 10:00",
 
   blessingEyebrow: "કબીર સાહેબના આશીર્વાદ સાથે",
   blessingMessage: "અમારા જીવનના આ શુભ અવસરે આપને સહર્ષ આમંત્રિત કરીએ છીએ.",
@@ -204,7 +204,7 @@ const gu: Copy = {
   detailsHeading: "પ્રસંગની વિગતો",
   detailWhen: "તારીખ અને સમય",
   detailWhenDate: "રવિવાર, તા. 25 ઓક્ટોબર 2026",
-  detailWhenTime: "સવારે 10:30 કલાકે",
+  detailWhenTime: "સવારે 10:00 કલાકે",
   detailWhere: "શુભ સ્થળ",
 
   rsvpAria: "RSVP ફોર્મ",
@@ -271,7 +271,7 @@ const gu: Copy = {
   liveHeading: "લાઇવ પ્રસારણ",
   liveSoon: "થોડી રાહ જુઓ — લાઇવ પ્રસારણની લિંક અમે અહીં જ મૂકીશું.",
   liveReady: "ઑનલાઇન જોડાઓ અને આપ જ્યાં હો ત્યાંથી અમારી સાથે ઉજવણી કરો.",
-  liveWhen: "રવિવાર, 25 ઓક્ટોબર · સવારે 10:30",
+  liveWhen: "રવિવાર, 25 ઓક્ટોબર · સવારે 10:00",
   liveSoonPill: "લિંક ટૂંક સમયમાં",
   liveWatch: "લાઇવ જુઓ",
   liveOpenYoutube: "YouTube માં ખોલો",
@@ -292,7 +292,7 @@ const gu: Copy = {
       "આ શુભ અવસરે આપ સપરિવાર પધારી પ્રસંગની શોભા વધારશો અને નિધિ-હાર્દિકને આશીર્વાદ આપશો એવી અમારી હાર્દિક વિનંતી.",
       "",
       "📅 રવિવાર, તા. 25 ઓક્ટોબર 2026",
-      "🕥 સવારે 10:30 કલાકે",
+      "🕥 સવારે 10:00 કલાકે",
       `📍 ${event.location}`,
       "",
       "કૃપા કરી તા. 12 ઓક્ટોબર સુધીમાં આપ પધારી શકશો કે નહીં તેની જાણ કરશો.",
